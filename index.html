@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowGuide.ai — Voice AI & WhatsApp AI Voorstel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b16;--bg2:#0a1020;--ink:#eef3ff;--muted:#8a96b5;--muted2:#5e6a88;
+  --blue:#4f7cff;--blue-l:#7aa0ff;--violet:#8b6cff;--green:#22c55e;--green-l:#4ade80;--amber:#f5b13d;
+  --panel:rgba(255,255,255,.035);--panel-b:rgba(255,255,255,.09);--panel-b2:rgba(255,255,255,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+   radial-gradient(900px 600px at 18% 12%,rgba(79,124,255,.16),transparent 60%),
+   radial-gradient(820px 560px at 86% 88%,rgba(139,108,255,.13),transparent 60%),
+   radial-gradient(700px 500px at 90% 8%,rgba(34,197,94,.07),transparent 60%),
+   linear-gradient(180deg,#070b16,#060912)}
+.grid-layer{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:60px 60px;-webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 40%,transparent 100%);mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 40%,transparent 100%)}
+
+/* progress bar */
+.progress{position:fixed;top:0;left:0;height:3px;z-index:8;background:linear-gradient(90deg,var(--blue),var(--violet));width:0;transition:width .5s ease;box-shadow:0 0 12px rgba(79,124,255,.6)}
+
+.stage{position:relative;z-index:2;height:100vh;width:100vw}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:64px clamp(40px,7vw,130px) 104px;opacity:0;visibility:hidden;transform:scale(.985);
+  transition:opacity .5s ease,transform .5s ease,visibility .5s;overflow:hidden}
+.slide.active{opacity:1;visibility:visible;transform:scale(1)}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:22px clamp(28px,4vw,52px);pointer-events:none}
+.brand{display:flex;align-items:center;gap:11px;font-family:'Sora';font-weight:700;font-size:20px;letter-spacing:-.01em}
+.brand .logo{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--violet));box-shadow:0 6px 22px rgba(79,124,255,.4)}
+.brand .logo svg{width:17px;height:17px}
+.brand b{color:#fff}.brand span{color:var(--blue-l)}
+.presenter{pointer-events:auto;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:#dfe7ff;background:linear-gradient(135deg,rgba(79,124,255,.9),rgba(110,92,255,.9));padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.18);cursor:pointer;box-shadow:0 8px 26px rgba(79,124,255,.35);transition:.2s}
+.presenter:hover{transform:translateY(-1px)}
+.presenter .dot{width:8px;height:8px;border-radius:50%;background:var(--green-l);box-shadow:0 0 8px var(--green-l)}
+
+.botbar{position:fixed;bottom:0;left:0;right:0;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:20px clamp(28px,4vw,52px)}
+.foot{font-size:12.5px;color:var(--muted2);display:flex;align-items:center;gap:8px}
+.foot .gg{display:flex;align-items:center;gap:6px;opacity:.8}.foot b{color:var(--blue-l)}
+.nav{display:flex;align-items:center;gap:18px}
+.dots{display:flex;align-items:center;gap:7px}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);cursor:pointer;transition:.3s}
+.dots i.on{width:26px;border-radius:5px;background:linear-gradient(90deg,var(--blue),var(--blue-l))}
+.arrow{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--panel-b);color:#cdd6ef;transition:.2s}
+.arrow:hover{background:rgba(255,255,255,.12);color:#fff}.arrow svg{width:17px;height:17px}
+.counter{font-size:13px;color:var(--muted);min-width:48px;text-align:right;font-variant-numeric:tabular-nums}
+.fs{cursor:pointer;color:var(--muted2);transition:.2s}.fs:hover{color:#fff}.fs svg{width:18px;height:18px}
+
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--blue-l);margin-bottom:22px}
+.eyebrow.green{color:var(--green-l)}.eyebrow.amber{color:var(--amber)}.eyebrow.violet{color:#b3a0ff}
+.eyebrow svg{width:17px;height:17px}
+h1.display{font-family:'Sora';font-weight:800;font-size:clamp(40px,6.6vw,92px);line-height:1.02;letter-spacing:-.025em;color:#fff}
+h2.title{font-family:'Sora';font-weight:800;font-size:clamp(32px,4.6vw,62px);line-height:1.05;letter-spacing:-.02em;color:#fff}
+.grad{background:linear-gradient(100deg,var(--blue-l),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-g{background:linear-gradient(100deg,var(--green-l),#86efac);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-a{background:linear-gradient(100deg,#ffd083,var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:clamp(16px,1.5vw,21px);color:var(--muted);line-height:1.55;max-width:760px}
+.center{align-items:center;text-align:center}.center .lead{margin:0 auto}
+
+.slide .anim{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease}
+.slide.active .anim{opacity:1;transform:none;transition-delay:calc(var(--i,0)*48ms + 80ms)}
+
+.cards{display:flex;gap:18px;flex-wrap:wrap;margin-top:38px}
+.card{flex:1;min-width:190px;background:var(--panel);border:1px solid var(--panel-b);border-radius:18px;padding:22px 24px;position:relative;overflow:hidden;backdrop-filter:blur(6px)}
+.card .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;margin-bottom:14px;background:rgba(79,124,255,.14);color:var(--blue-l)}
+.card .ic svg{width:19px;height:19px}
+.card .big{font-family:'Sora';font-weight:800;font-size:clamp(26px,2.6vw,36px);line-height:1;letter-spacing:-.02em}
+.card .lbl{color:var(--muted);font-size:13.5px;margin-top:7px}
+.card.b .big{color:var(--blue-l)}.card.g .big{color:var(--green-l)}.card.a .big{color:var(--amber)}.card.v .big{color:#b3a0ff}
+.card.g .ic{background:rgba(34,197,94,.14);color:var(--green-l)}.card.a .ic{background:rgba(245,177,61,.14);color:var(--amber)}.card.v .ic{background:rgba(139,108,255,.16);color:#b3a0ff}
+.card::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent);opacity:.5}
+.card.g::after{background:linear-gradient(90deg,transparent,var(--green),transparent)}.card.a::after{background:linear-gradient(90deg,transparent,var(--amber),transparent)}.card.v::after{background:linear-gradient(90deg,transparent,var(--violet),transparent)}
+
+.cta{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:16px;color:#fff;background:linear-gradient(135deg,var(--blue),var(--violet));padding:16px 30px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 14px 38px rgba(79,124,255,.4);transition:.22s;margin-top:36px;text-decoration:none}
+.cta:hover{transform:translateY(-2px);box-shadow:0 20px 48px rgba(79,124,255,.5)}
+.cta.green{background:linear-gradient(135deg,#16a34a,var(--green));box-shadow:0 14px 38px rgba(34,197,94,.38)}
+.cta svg{width:18px;height:18px}
+.cta.ghost{background:transparent;border:1px solid var(--panel-b2);box-shadow:none;color:#cdd6ef}
+.cta.ghost:hover{background:rgba(255,255,255,.06)}
+.ctarow{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:36px}
+.ctarow .cta{margin-top:0}
+
+.pillrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.pill{font-size:13px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--panel-b);padding:8px 14px;border-radius:999px;display:flex;align-items:center;gap:8px}
+.pill svg{width:14px;height:14px;color:var(--green-l)}
+
+.kbadge{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;color:#c7d4ff;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.32);padding:9px 18px;border-radius:999px;margin-bottom:28px}
+.kbadge .d{width:7px;height:7px;border-radius:50%;background:var(--blue-l);box-shadow:0 0 8px var(--blue-l)}
+
+.two{display:grid;grid-template-columns:1.05fr 1fr;gap:46px;align-items:center;width:100%}
+@media(max-width:1000px){.two{grid-template-columns:1fr;gap:26px}}
+
+.plist{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.prow{display:flex;gap:16px;align-items:flex-start;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:16px 18px}
+.prow .x{width:30px;height:30px;flex:none;border-radius:9px;background:rgba(244,63,94,.13);color:#fb7185;display:grid;place-items:center;font-weight:700}
+.prow .x svg{width:16px;height:16px}
+.prow h4{font-size:15.5px;font-weight:700;color:#fff;margin-bottom:3px}
+.prow p{font-size:13.5px;color:var(--muted);line-height:1.45}
+
+.flow{display:flex;flex-direction:column;gap:11px;margin-top:8px}
+.fstep{display:flex;align-items:center;gap:15px;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:14px 18px;position:relative}
+.fstep.hl{background:linear-gradient(120deg,rgba(34,197,94,.14),rgba(34,197,94,.05));border-color:rgba(34,197,94,.4)}
+.fstep.hlb{background:linear-gradient(120deg,rgba(79,124,255,.16),rgba(79,124,255,.05));border-color:rgba(79,124,255,.42)}
+.fstep .fi{width:34px;height:34px;flex:none;border-radius:10px;background:rgba(255,255,255,.06);display:grid;place-items:center;color:#c7d4ff}
+.fstep .fi svg{width:17px;height:17px}
+.fstep .ft{flex:1}.fstep .ft b{font-size:14.5px;color:#fff;display:block}.fstep .ft small{font-size:12.5px;color:var(--muted)}
+.fstep .tag{font-size:11px;font-weight:700;letter-spacing:.04em;color:#7ee2a3;background:rgba(34,197,94,.16);padding:3px 9px;border-radius:6px}
+.fstep .time{font-size:12.5px;font-weight:700;color:#9fb0d6;background:rgba(255,255,255,.07);padding:5px 11px;border-radius:8px}
+.fstep.hl .time{background:rgba(34,197,94,.2);color:#86efac}.fstep.hlb .time{background:rgba(79,124,255,.22);color:var(--blue-l)}
+
+.phone{justify-self:center;width:300px;background:linear-gradient(180deg,#0d1426,#0a1020);border:1px solid var(--panel-b2);border-radius:34px;padding:16px 14px;box-shadow:0 40px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05)}
+.phone .notch{width:120px;height:6px;border-radius:6px;background:rgba(255,255,255,.14);margin:2px auto 16px}
+.callhead{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 0 18px}
+.callhead .av{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--blue),var(--violet));box-shadow:0 12px 30px rgba(79,124,255,.45)}
+.callhead .av svg{width:34px;height:34px}
+.callhead .nm{font-weight:700;font-size:17px;color:#fff}
+.callhead .st{font-size:12.5px;color:var(--green-l);display:flex;align-items:center;gap:7px}
+.callhead .st i{width:7px;height:7px;border-radius:50%;background:var(--green-l);box-shadow:0 0 8px var(--green-l);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.tline{display:flex;flex-direction:column;gap:9px;padding:6px 6px 12px}
+.tmsg{max-width:84%;font-size:12.8px;line-height:1.4;padding:9px 13px;border-radius:14px}
+.tmsg.ai{align-self:flex-start;background:rgba(79,124,255,.16);border:1px solid rgba(79,124,255,.3);color:#dfe8ff;border-bottom-left-radius:5px}
+.tmsg.u{align-self:flex-end;background:rgba(255,255,255,.07);border:1px solid var(--panel-b);color:#e8edfb;border-bottom-right-radius:5px}
+.callbar{display:flex;justify-content:center;gap:18px;padding:10px 0 6px}
+.cbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center}
+.cbtn.end{background:#ef4444;color:#fff}.cbtn.g{background:rgba(255,255,255,.08);color:#cdd6ef}
+.cbtn svg{width:19px;height:19px}
+
+.wa{justify-self:stretch;width:100%;max-width:430px;background:#0b141a;border:1px solid var(--panel-b);border-radius:22px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.5)}
+.wahead{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#15241d;border-bottom:1px solid rgba(255,255,255,.05)}
+.wahead .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#16a34a,var(--green));display:grid;place-items:center;color:#fff}
+.wahead .av svg{width:21px;height:21px}
+.wahead .nm{font-weight:700;font-size:15px;color:#fff}
+.wahead .st{font-size:11.5px;color:#7ee2a3;display:flex;align-items:center;gap:6px}
+.wahead .st i{width:6px;height:6px;border-radius:50%;background:#4ade80}
+.wabody{padding:16px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#0b141a,#0d171d);min-height:260px}
+.wasys{align-self:center;font-size:11px;color:#8aa0a8;background:rgba(255,255,255,.05);padding:4px 12px;border-radius:8px}
+.wmsg{max-width:80%;font-size:13px;line-height:1.45;padding:8px 12px;border-radius:12px;position:relative}
+.wmsg .t{display:block;font-size:10px;color:rgba(255,255,255,.45);text-align:right;margin-top:3px}
+.wmsg.ai{align-self:flex-start;background:#1f2c33;color:#e9eef0;border-top-left-radius:4px}
+.wmsg.u{align-self:flex-end;background:#155e44;color:#eafff2;border-top-right-radius:4px}
+
+.cmp{width:100%;margin-top:20px;border:1px solid var(--panel-b);border-radius:18px;overflow:hidden;background:var(--panel)}
+.crow{display:grid;grid-template-columns:1.1fr 1.4fr 1.4fr;align-items:center}
+.crow+.crow{border-top:1px solid rgba(255,255,255,.055)}
+.crow.head{background:rgba(255,255,255,.03)}
+.crow.head .cc{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.crow.head .cc.gg{color:var(--blue-l)}.crow.head .cc.ot{color:#9aa6c4}
+.cc{padding:14px 20px;font-size:14px}
+.cc.lbl{font-weight:700;color:#fff}.cc.bad{color:var(--muted)}.cc.good{color:#dfe7ff;font-weight:600}
+.cc .mk{display:inline-flex;width:19px;height:19px;border-radius:6px;align-items:center;justify-content:center;margin-right:9px;vertical-align:-3px}
+.mk.no{background:rgba(244,63,94,.14);color:#fb7185}.mk.yes{background:rgba(34,197,94,.16);color:#4ade80}
+.mk svg{width:12px;height:12px}
+.crow.good-bg{background:linear-gradient(90deg,transparent 33%,rgba(79,124,255,.06))}
+
+.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px;width:100%}
+@media(max-width:1000px){.bgrid{grid-template-columns:repeat(2,1fr)}}
+.bcard{background:var(--panel);border:1px solid var(--panel-b);border-radius:16px;padding:20px;transition:.25s}
+.bcard:hover{border-color:var(--panel-b2);transform:translateY(-3px)}
+.bcard .bi{width:40px;height:40px;border-radius:11px;background:rgba(79,124,255,.13);color:var(--blue-l);display:grid;place-items:center;margin-bottom:13px}
+.bcard .bi svg{width:20px;height:20px}
+.bcard h4{font-size:16px;font-weight:700;color:#fff;margin-bottom:5px}
+.bcard p{font-size:13px;color:var(--muted);line-height:1.5}
+
+.bigstats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px;width:100%}
+.bigstat{background:var(--panel);border:1px solid var(--panel-b);border-radius:18px;padding:26px;position:relative;overflow:hidden}
+.bigstat .n{font-family:'Sora';font-weight:800;font-size:clamp(34px,4vw,52px);line-height:1;letter-spacing:-.02em}
+.bigstat .d{font-size:15px;font-weight:600;color:#dbe3f7;margin-top:10px}
+.bigstat .s{font-size:13px;color:var(--muted);margin-top:4px}
+.bigstat .src{display:inline-block;margin-top:14px;font-size:11.5px;color:#9aa6c4;background:rgba(255,255,255,.05);padding:4px 10px;border-radius:7px}
+.bigstat.r .n{color:#fb7185}.bigstat.g .n{color:var(--green-l)}.bigstat.b .n{color:var(--blue-l)}
+
+.tl{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:34px;width:100%}
+@media(max-width:1000px){.tl{grid-template-columns:repeat(2,1fr)}}
+.tstep{background:var(--panel);border:1px solid var(--panel-b);border-radius:16px;padding:22px;position:relative}
+.tstep .wk{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-l);margin-bottom:12px}
+.tstep .num{font-family:'Sora';font-weight:800;font-size:34px;color:rgba(255,255,255,.1);position:absolute;top:14px;right:18px}
+.tstep h4{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
+.tstep p{font-size:13px;color:var(--muted);line-height:1.5}
+
+.pricewrap{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:30px;width:100%;max-width:880px}
+.price{background:var(--panel);border:1px solid var(--panel-b);border-radius:20px;padding:30px;position:relative;overflow:hidden}
+.price.feat{border-color:rgba(79,124,255,.45);background:linear-gradient(160deg,rgba(79,124,255,.1),var(--panel))}
+.price .ribbon{position:absolute;top:18px;right:-34px;transform:rotate(45deg);background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-size:11px;font-weight:700;padding:5px 44px;letter-spacing:.06em}
+.price .pname{font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--blue-l);margin-bottom:14px}
+.price .amt{font-family:'Sora';font-weight:800;font-size:46px;color:#fff;letter-spacing:-.02em}
+.price .amt small{font-size:17px;font-weight:600;color:var(--muted)}
+.price .desc{font-size:13.5px;color:var(--muted);margin:8px 0 18px;line-height:1.5}
+.price ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.price li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#dbe3f7}
+.price li svg{width:16px;height:16px;flex:none;color:var(--green-l);margin-top:2px}
+
+.bigicon{width:96px;height:96px;border-radius:26px;display:grid;place-items:center;margin:0 auto 30px;background:linear-gradient(135deg,rgba(79,124,255,.2),rgba(139,108,255,.16));border:1px solid rgba(79,124,255,.3)}
+.bigicon svg{width:46px;height:46px;color:var(--blue-l)}
+.rule{width:60px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--violet));margin:26px auto}
+.contact{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:30px;color:var(--muted);font-size:14px}
+.contact a,.contact span{color:#cdd6ef;display:flex;align-items:center;gap:8px;text-decoration:none}
+.contact svg{width:16px;height:16px;color:var(--blue-l)}
+
+.warn{display:flex;gap:13px;align-items:flex-start;margin-top:22px;background:rgba(245,177,61,.07);border:1px solid rgba(245,177,61,.28);border-radius:14px;padding:15px 18px;max-width:560px}
+.warn svg{width:20px;height:20px;color:var(--amber);flex:none;margin-top:1px}
+.warn b{color:#ffd083}.warn p{font-size:13.5px;color:var(--muted);line-height:1.5}
+
+/* ROI calculator */
+.roi{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;width:100%;margin-top:30px}
+@media(max-width:1000px){.roi{grid-template-columns:1fr;gap:26px}}
+.roi-controls{display:flex;flex-direction:column;gap:24px}
+.ctrl label{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:#dbe3f7;font-weight:600;margin-bottom:12px}
+.ctrl label .val{font-family:'Sora';font-weight:800;font-size:20px;color:var(--blue-l)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;background:rgba(255,255,255,.1);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--violet));cursor:pointer;box-shadow:0 4px 14px rgba(79,124,255,.5);border:3px solid #0b1020}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--violet));cursor:pointer;border:3px solid #0b1020}
+.roi-result{background:linear-gradient(160deg,rgba(244,63,94,.1),var(--panel));border:1px solid rgba(244,63,94,.28);border-radius:22px;padding:34px;text-align:center}
+.roi-result .cap{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fb7185;margin-bottom:12px}
+.roi-result .euro{font-family:'Sora';font-weight:800;font-size:clamp(44px,5.4vw,72px);line-height:1;color:#fff;letter-spacing:-.02em}
+.roi-result .sub{font-size:14px;color:var(--muted);margin-top:12px}
+.roi-result .mo{margin-top:18px;font-size:14px;color:#dbe3f7}.roi-result .mo b{color:var(--green-l)}
+
+/* testimonials */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:32px;width:100%}
+@media(max-width:1000px){.tgrid{grid-template-columns:1fr}}
+.tcard{background:var(--panel);border:1px solid var(--panel-b);border-radius:18px;padding:26px;display:flex;flex-direction:column}
+.tcard .stars{display:flex;gap:3px;color:var(--amber);margin-bottom:14px}
+.tcard .stars svg{width:16px;height:16px}
+.tcard .q{font-size:15px;line-height:1.55;color:#e7ecfb;flex:1}
+.tcard .who{display:flex;align-items:center;gap:12px;margin-top:20px}
+.tcard .who .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--violet));display:grid;place-items:center;font-weight:700;color:#fff;font-size:15px}
+.tcard .who b{font-size:14px;color:#fff;display:block}.tcard .who small{font-size:12.5px;color:var(--muted)}
+.tcard .res{margin-top:16px;font-size:13px;font-weight:700;color:var(--green-l);background:rgba(34,197,94,.12);border-radius:8px;padding:7px 12px;align-self:flex-start}
+
+/* FAQ */
+.faq{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:30px;width:100%}
+@media(max-width:1000px){.faq{grid-template-columns:1fr}}
+.qa{background:var(--panel);border:1px solid var(--panel-b);border-radius:16px;padding:22px 24px}
+.qa h4{font-size:15.5px;font-weight:700;color:#fff;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
+.qa h4 .qm{color:var(--blue-l);font-family:'Sora';font-weight:800}
+.qa p{font-size:13.5px;color:var(--muted);line-height:1.55}
+
+.kbhint{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);z-index:5;font-size:12px;color:var(--muted2);opacity:.75;transition:opacity .5s;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="grid-layer"></div>
+<div class="progress" id="progress"></div>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7l-9-5z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 12l2.5 2.5L16 9" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span><b>Grow</b><span>Guide</span></span>
+  </div>
+  <div class="presenter" onclick="toggleFS()"><span class="dot"></span> Presenter</div>
+</div>
+
+<div class="stage" id="stage">
+
+  <!-- 1 HERO -->
+  <section class="slide center active">
+    <div class="anim" style="--i:0"><span class="kbadge"><span class="d"></span> <span id="badgeTxt">Voorstel · Voice AI &amp; WhatsApp AI Agents</span></span></div>
+    <h1 class="display anim" style="--i:1">Mis nooit meer<br>een klant. <span class="grad">Laat AI<br>de rest doen.</span></h1>
+    <p class="lead anim" style="--i:2;margin-top:24px">Een slimme telefoon- én WhatsApp-assistent die 24/7 opneemt, antwoordt, afspraken inplant en élke lead binnen seconden opvolgt — in vloeiend Nederlands.</p>
+    <div class="cards anim" style="--i:3;max-width:880px;margin-left:auto;margin-right:auto">
+      <div class="card b"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg></div><div class="big">24/7</div><div class="lbl">altijd bereikbaar</div></div>
+      <div class="card g"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M3 17l6-6 4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="big"><span data-count="30" data-suf="–50%">30–50%</span></div><div class="lbl">meer leads</div></div>
+      <div class="card a"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div><div class="big">5.0/5</div><div class="lbl">59 reviews</div></div>
+    </div>
+    <button class="cta anim" style="--i:4" onclick="go(1)">Bekijk het voorstel <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </section>
+
+  <!-- 2 PROBLEM -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow amber"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Het echte probleem</span></div>
+    <h2 class="title anim" style="--i:1">Elke gemiste oproep is <span class="grad-a">verloren omzet</span></h2>
+    <p class="lead anim" style="--i:2">De telefoon gaat, maar niemand kan opnemen. De klant hangt op en belt de volgende in Google. Herkenbaar?</p>
+    <div class="two" style="margin-top:34px">
+      <div class="plist">
+        <div class="prow anim" style="--i:3"><span class="x"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><div><h4>Gemiste calls buiten kantooruren</h4><p>’s Avonds, in het weekend en tijdens drukte staat de lijn stil — precies wanneer klanten bellen.</p></div></div>
+        <div class="prow anim" style="--i:4"><span class="x"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><div><h4>Te trage opvolging van leads</h4><p>Wie niet binnen minuten reageert, verliest de lead. Gemiddeld duurt opvolging 47 uur.</p></div></div>
+        <div class="prow anim" style="--i:5"><span class="x"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><div><h4>Personeel is duur en beperkt</h4><p>Een receptionist kost duizenden euro’s per maand, werkt alleen overdag en kan maar één gesprek tegelijk.</p></div></div>
+      </div>
+      <div class="cards anim" style="--i:6;flex-direction:column">
+        <div class="card a"><div class="big"><span data-count="47" data-suf=" uur">47 uur</span></div><div class="lbl">gemiddelde reactietijd op een nieuwe lead</div></div>
+        <div class="card" style="margin-top:0"><div class="big" style="color:#fb7185"><span data-count="78" data-suf="%">78%</span></div><div class="lbl">van de kopers kiest het bedrijf dat als eerste reageert <span style="opacity:.6">· Lead Response Mgmt</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 ROI CALCULATOR -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow amber"><svg viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Wat kost het je écht?</span></div>
+    <h2 class="title anim" style="--i:1">Reken zelf je <span class="grad-a">gemiste omzet</span> uit</h2>
+    <p class="lead anim" style="--i:2">Schuif met de waarden van jouw bedrijf en zie wat onbeantwoorde oproepen je per jaar kosten.</p>
+    <div class="roi anim" style="--i:3">
+      <div class="roi-controls">
+        <div class="ctrl">
+          <label>Gemiste oproepen per week <span class="val" id="v1">5</span></label>
+          <input type="range" id="r1" min="1" max="25" value="5" oninput="calcROI()">
+        </div>
+        <div class="ctrl">
+          <label>Gemiddelde klantwaarde <span class="val" id="v2">€500</span></label>
+          <input type="range" id="r2" min="50" max="5000" step="50" value="500" oninput="calcROI()">
+        </div>
+        <div class="ctrl">
+          <label>Kans dat een gemiste call een klant was <span class="val" id="v3">30%</span></label>
+          <input type="range" id="r3" min="5" max="60" step="5" value="30" oninput="calcROI()">
+        </div>
+        <div class="pillrow">
+          <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> GrowGuide vangt deze calls 24/7 op</span>
+        </div>
+      </div>
+      <div class="roi-result">
+        <div class="cap">Misgelopen omzet per jaar</div>
+        <div class="euro" id="roiYear">€39.000</div>
+        <div class="mo">≈ <b id="roiMonth">€3.250</b> per maand aan gemiste klanten</div>
+        <div class="sub">Vanaf €349/mnd vang je dit op — vaak terugverdiend met één gered contact.</div>
+      </div>
+    </div>
+  </section>
+  <!-- 4 SOLUTION -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 0 0-9 9v4a2 2 0 0 0 2 2h2v-6H5v0a7 7 0 0 1 14 0v0h-2v6h2a2 2 0 0 0 2-2v-4a9 9 0 0 0-9-9z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>De oplossing</span></div>
+    <h2 class="title anim" style="--i:1">Twee AI-collega’s die <span class="grad">nooit een klant laten wachten</span></h2>
+    <p class="lead anim" style="--i:2">Geen keuzemenu, geen wachtrij. Echte gesprekken — aan de telefoon én op WhatsApp.</p>
+    <div class="cards anim" style="--i:3;margin-top:40px">
+      <div class="card b" style="min-width:320px;padding:30px">
+        <div class="ic" style="width:48px;height:48px;border-radius:14px"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+        <div class="big" style="font-size:24px;color:#fff">Voice AI</div>
+        <div class="lbl" style="margin-top:10px;line-height:1.55">Neemt de telefoon op en voert een volwaardig gesprek. Beantwoordt vragen, checkt orders, plant en verzet afspraken — en mailt na elk gesprek een verslag.</div>
+      </div>
+      <div class="card g" style="min-width:320px;padding:30px">
+        <div class="ic" style="width:48px;height:48px;border-radius:14px"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.6-1.2A9 9 0 1 0 12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+        <div class="big" style="font-size:24px;color:#fff">WhatsApp AI</div>
+        <div class="lbl" style="margin-top:10px;line-height:1.55">Reageert binnen 1 seconde op elke binnenkomende lead. Kwalificeert, beantwoordt vragen en plant de afspraak — automatisch, 24/7.</div>
+      </div>
+    </div>
+    <div class="pillrow anim" style="--i:4">
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Vloeiend Nederlands (ook NL, DE, EN, ES)</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Koppelt met je CRM &amp; agenda</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Schakelt naadloos door naar een mens</span>
+    </div>
+  </section>
+
+  <!-- 5 VOICE IN ACTIE -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Voice AI in actie</span></div>
+    <h2 class="title anim" style="--i:1">Een echte telefonist — <span class="grad">die nooit ziek is</span></h2>
+    <div class="two" style="margin-top:30px">
+      <div>
+        <div class="flow">
+          <div class="fstep anim" style="--i:2"><span class="fi"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.7"/></svg></span><div class="ft"><b>Neemt direct op</b><small>Geen wachtrij, geen voicemail</small></div><span class="time">0 sec</span></div>
+          <div class="fstep anim" style="--i:3"><span class="fi"><svg viewBox="0 0 24 24" fill="none"><path d="M8 10h8M8 14h5M4 5h16v11H7l-3 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><div class="ft"><b>Beantwoordt vragen</b><small>Prijzen, diensten, openingstijden, orderstatus</small></div></div>
+          <div class="fstep hlb anim" style="--i:4"><span class="fi"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="1.7"/></svg></span><div class="ft"><b>Plant &amp; verzet afspraken</b><small>Direct in Google Calendar of Outlook</small></div><span class="time">live</span></div>
+          <div class="fstep anim" style="--i:5"><span class="fi"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H7l-3 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><div class="ft"><b>Mailt een gespreksverslag</b><small>Volledig transcript na elk gesprek</small></div></div>
+        </div>
+        <div class="pillrow anim" style="--i:6">
+          <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> 10–20 gesprekken tegelijk</span>
+          <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> &lt; 500 ms reactietijd</span>
+        </div>
+      </div>
+      <div class="phone anim" style="--i:4">
+        <div class="notch"></div>
+        <div class="callhead">
+          <div class="av"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+          <div class="nm">GrowGuide Voice AI</div>
+          <div class="st"><i></i> In gesprek · 00:42</div>
+        </div>
+        <div class="tline">
+          <div class="tmsg ai">Goedemiddag, u spreekt met de assistent. Waarmee kan ik u helpen?</div>
+          <div class="tmsg u">Ik wil graag een afspraak maken voor volgende week.</div>
+          <div class="tmsg ai">Zeker! Donderdag 10:00 of 14:00 — wat schikt het beste?</div>
+          <div class="tmsg u">Donderdag 14:00.</div>
+          <div class="tmsg ai">Genoteerd ✅ U ontvangt direct een bevestiging per mail. Fijne dag!</div>
+        </div>
+        <div class="callbar">
+          <div class="cbtn g"><svg viewBox="0 0 24 24" fill="none"><path d="M11 5 6 9H2v6h4l5 4zM19 9a5 5 0 0 1 0 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="cbtn end"><svg viewBox="0 0 24 24" fill="none"><path d="M3 10c6-4 12-4 18 0l-2 3-3-1v-2a10 10 0 0 0-8 0v2l-3 1z" fill="currentColor"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 WHATSAPP IN ACTIE -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow green"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.6-1.2A9 9 0 1 0 12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>WhatsApp AI · opvolging</span></div>
+    <h2 class="title anim" style="--i:1">Reageert binnen <span class="grad-g">1 seconde</span> — terwijl jij doorwerkt</h2>
+    <div class="two" style="margin-top:30px">
+      <div>
+        <div class="flow">
+          <div class="fstep anim" style="--i:2"><span class="fi"><svg viewBox="0 0 24 24" fill="none"><path d="M3 17l6-6 4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="ft"><b>Lead klikt op advertentie</b><small>Facebook of Instagram</small></div><span class="time">0s</span></div>
+          <div class="fstep anim" style="--i:3"><span class="fi"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4zM4 9h16" stroke="currentColor" stroke-width="1.7"/></svg></span><div class="ft"><b>Formulier ingevuld</b><small>Naam, telefoon, vraag</small></div><span class="time">30s</span></div>
+          <div class="fstep hl anim" style="--i:4"><span class="fi"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><div class="ft"><b>WhatsApp AI reageert</b><small>Binnen 1 seconde, automatisch</small></div><span class="tag">AUTOMATISCH</span></div>
+          <div class="fstep anim" style="--i:5"><span class="fi"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="1.7"/></svg></span><div class="ft"><b>Afspraak ingepland</b><small>Direct in jouw agenda</small></div><span class="time">5 min</span></div>
+        </div>
+        <div class="warn anim" style="--i:6"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><p><b>Wat je concurrent doet:</b> gemiddeld pas na <b>47 uur</b> reageren. Tegen die tijd heeft de klant al 3 offertes van anderen.</p></div>
+      </div>
+      <div class="wa anim" style="--i:4">
+        <div class="wahead"><div class="av"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.6-1.2A9 9 0 1 0 12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div><div class="nm">GrowGuide AI Assistent</div><div class="st"><i></i> Online · reageert direct</div></div></div>
+        <div class="wabody">
+          <div class="wasys">Lead ontvangen via Facebook Ad — 14:32</div>
+          <div class="wmsg ai">Hoi! 👋 Ik ben de assistent van GrowGuide. Je toonde interesse — wanneer schikt een kort gesprek?<span class="t">14:32</span></div>
+          <div class="wmsg u">Morgen of overmorgen is goed<span class="t">14:33</span></div>
+          <div class="wmsg ai">Top! Morgen kan om 10:00 of 14:00. Welk tijdstip past het beste? 📅<span class="t">14:33</span></div>
+          <div class="wmsg u">14:00 is prima<span class="t">14:34</span></div>
+          <div class="wmsg ai">✅ Geregeld! Afspraak morgen om 14:00. Je krijgt een bevestiging. Tot morgen! 🤝<span class="t">14:34</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- 7 SOCIAL PROOF -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow amber"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Wat klanten zeggen</span></div>
+    <h2 class="title anim" style="--i:1">Al <span class="grad-a">100+</span> Nederlandse bedrijven gingen je voor</h2>
+    <p class="lead anim" style="--i:2">Gemiddeld 5.0/5 op basis van 59 reviews. Dit zijn echte resultaten.</p>
+    <div class="tgrid">
+      <div class="tcard anim" style="--i:3">
+        <div class="stars"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg></div>
+        <p class="q">“Patiënten kunnen nu 24/7 bellen voor afspraken en spoed. Onze balie heeft eindelijk lucht.”</p>
+        <div class="res">+40% afspraken geboekt</div>
+        <div class="who"><div class="av">TA</div><div><b>Tandartspraktijk</b><small>Amsterdam · 500+ patiënten</small></div></div>
+      </div>
+      <div class="tcard anim" style="--i:4">
+        <div class="stars"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg></div>
+        <p class="q">“Klanten krijgen direct antwoord, spoedklussen worden perfect doorgestuurd. We missen geen oproep meer.”</p>
+        <div class="res">0% gemiste calls</div>
+        <div class="who"><div class="av">IU</div><div><b>Installatiebedrijf</b><small>Utrecht · 15 monteurs</small></div></div>
+      </div>
+      <div class="tcard anim" style="--i:5">
+        <div class="stars"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z"/></svg></div>
+        <p class="q">“In 6 maanden 200% meer leads en klanttevredenheid naar 9,2. Voelt als een extra collega die nooit ziek wordt.”</p>
+        <div class="res">+200% leads</div>
+        <div class="who"><div class="av">MR</div><div><b>Makelaarskantoor</b><small>Rotterdam</small></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 COMPARISON -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 8l7-5 7 5M5 8v8a7 4 0 0 0 14 0V8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Geen verborgen agenda</span></div>
+    <h2 class="title anim" style="--i:1">Het verschil is <span class="grad">duidelijk</span></h2>
+    <p class="lead anim" style="--i:2">Waarom ondernemers kiezen voor AI-bemensing in plaats van een traditioneel callcenter.</p>
+    <div class="cmp anim" style="--i:3">
+      <div class="crow head"><div class="cc">Onderdeel</div><div class="cc ot">Traditioneel / callcenter</div><div class="cc gg">● GrowGuide AI</div></div>
+      <div class="crow good-bg"><div class="cc lbl">Bereikbaarheid</div><div class="cc bad"><span class="mk no"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>Alleen kantooruren</div><div class="cc good"><span class="mk yes"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>24/7, ook avond &amp; weekend</div></div>
+      <div class="crow good-bg"><div class="cc lbl">Reactietijd lead</div><div class="cc bad"><span class="mk no"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>Uren tot dagen</div><div class="cc good"><span class="mk yes"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Binnen 1 seconde</div></div>
+      <div class="crow good-bg"><div class="cc lbl">Capaciteit</div><div class="cc bad"><span class="mk no"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>Eén gesprek per persoon</div><div class="cc good"><span class="mk yes"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>10–20 gesprekken tegelijk</div></div>
+      <div class="crow good-bg"><div class="cc lbl">Kosten</div><div class="cc bad"><span class="mk no"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>Duizenden euro’s p/m</div><div class="cc good"><span class="mk yes"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Vanaf €349 per maand</div></div>
+      <div class="crow good-bg"><div class="cc lbl">Consistentie</div><div class="cc bad"><span class="mk no"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>Wisselt per medewerker</div><div class="cc good"><span class="mk yes"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Altijd hetzelfde niveau</div></div>
+      <div class="crow good-bg"><div class="cc lbl">Contract</div><div class="cc bad"><span class="mk no"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>Vaak 6–12 maanden vast</div><div class="cc good"><span class="mk yes"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Maandelijks opzegbaar</div></div>
+    </div>
+  </section>
+  <!-- 9 SCIENCE -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow violet"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3h6M10 3v6L5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1l-5-10V3" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Bewezen door onderzoek</span></div>
+    <h2 class="title anim" style="--i:1">Snelheid bepaalt <span class="grad">wie de deal krijgt</span></h2>
+    <p class="lead anim" style="--i:2">Harvard, MIT en InsideSales onderzochten miljoenen leads. De conclusie is glashelder.</p>
+    <div class="bigstats anim" style="--i:3">
+      <div class="bigstat r"><div class="n">100×</div><div class="d">minder kans op contact</div><div class="s">als je 30 min wacht i.p.v. 5 min</div><span class="src">MIT Lead Response Study</span></div>
+      <div class="bigstat g"><div class="n"><span data-count="391" data-suf="%">391%</span></div><div class="d">meer deals gesloten</div><div class="s">bij opvolging binnen 60 seconden</div><span class="src">Harvard Business Review</span></div>
+      <div class="bigstat b"><div class="n">35–50%</div><div class="d">van deals gaat naar eerste responder</div><div class="s">wie het eerst reageert, wint</div><span class="src">InsideSales.com</span></div>
+    </div>
+    <div class="cards anim" style="--i:4;margin-top:22px">
+      <div class="card g"><div class="big"><span data-count="98" data-suf="%">98%</span></div><div class="lbl">open rate WhatsApp (vs. 20% e-mail)</div></div>
+      <div class="card g"><div class="big">5×</div><div class="lbl">hogere conversie via WhatsApp</div></div>
+      <div class="card g"><div class="big"><span data-count="52" data-suf="%">52%</span></div><div class="lbl">minder no-shows met afspraakbevestiging</div></div>
+      <div class="card a"><div class="big"><span data-count="7" data-suf="%">7%</span></div><div class="lbl">van bedrijven reageert binnen 5 min — Velocify</div></div>
+    </div>
+  </section>
+
+  <!-- 10 BRANCHES -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-5h6v5" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Voor elke branche</span></div>
+    <h2 class="title anim" style="--i:1">Op maat voor <span class="grad">jouw vakgebied</span></h2>
+    <div class="bgrid">
+      <div class="bcard anim" style="--i:2"><div class="bi"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><h4>Zorg &amp; tandartsen</h4><p>Plant controles 24/7, bevestigt afspraken en doet eerste triage van spoed. +40% afspraken.</p></div>
+      <div class="bcard anim" style="--i:3"><div class="bi"><svg viewBox="0 0 24 24" fill="none"><path d="M14 7l3 3-8 8H6v-3zM13 5l3-3 4 4-3 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><h4>Installateurs</h4><p>Neemt storingen en spoedoproepen aan terwijl de monteur op de klus zit. 0% gemiste calls.</p></div>
+      <div class="bcard anim" style="--i:4"><div class="bi"><svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V8l7-5 7 5v13M10 12h4M10 16h4" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><h4>Makelaars</h4><p>Plant bezichtigingen, verstrekt woningdetails en kwalificeert leads. +200% leads.</p></div>
+      <div class="bcard anim" style="--i:5"><div class="bi"><svg viewBox="0 0 24 24" fill="none"><path d="M6 2h9l5 5v15H6zM15 2v5h5M9 13h6M9 17h6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><h4>Accountants</h4><p>Handelt intakes en vragen over deadlines af in piekperiodes — zonder bezet personeel.</p></div>
+      <div class="bcard anim" style="--i:6"><div class="bi"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 4 7v6c0 5 8 8 8 8s8-3 8-8V7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><h4>Advocaten</h4><p>Eerste juridische intake en zaak-triage 24/7, met directe doorzetting bij urgentie.</p></div>
+      <div class="bcard anim" style="--i:7"><div class="bi"><svg viewBox="0 0 24 24" fill="none"><path d="M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><h4>E-commerce</h4><p>Neemt bestellingen op, geeft productinfo en handelt retouren af — 24/7 klantenservice.</p></div>
+    </div>
+  </section>
+  <!-- 11 COMBINE -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><svg viewBox="0 0 24 24" fill="none"><path d="M8 7a4 4 0 1 0 0-.01M16 7a4 4 0 1 0 0-.01M2 21a6 6 0 0 1 12 0M10 21a6 6 0 0 1 12 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Het sterkst gecombineerd</span></div>
+    <h2 class="title anim" style="--i:1">Dicht het lek én <span class="grad">draai de kraan open</span></h2>
+    <p class="lead anim" style="--i:2">Voice &amp; WhatsApp AI vangen elk contact op. Een conversie-website en Meta Ads zorgen voor de instroom. Samen vormen ze een sluitend systeem.</p>
+    <div class="cards" style="margin-top:40px">
+      <div class="card b anim" style="--i:3"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M3 5h18v12H3zM3 9h18M8 21h8" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div class="big" style="font-size:20px;color:#fff">1. Instroom</div><div class="lbl" style="margin-top:8px">Conversie-website + Meta Ads brengen nieuwe leads binnen.</div></div>
+      <div class="card g anim" style="--i:4"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div class="big" style="font-size:20px;color:#fff">2. Opvolging</div><div class="lbl" style="margin-top:8px">WhatsApp AI reageert binnen 1 seconde en kwalificeert.</div></div>
+      <div class="card v anim" style="--i:5"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div class="big" style="font-size:20px;color:#fff">3. Conversie</div><div class="lbl" style="margin-top:8px">Voice AI neemt op, plant de afspraak en verzilvert de lead.</div></div>
+    </div>
+    <div class="pillrow anim" style="--i:6">
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> WhatsApp-automatisering</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Recruitment AI</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Review Management</span>
+    </div>
+  </section>
+
+  <!-- 12 PROCESS -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow green"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Van idee tot live</span></div>
+    <h2 class="title anim" style="--i:1">Binnen <span class="grad-g">2–3 weken</span> volledig operationeel</h2>
+    <p class="lead anim" style="--i:2">Volledige ontzorging. Wij regelen alles — jij hoeft alleen je bedrijf uit te leggen.</p>
+    <div class="tl">
+      <div class="tstep anim" style="--i:3"><span class="num">1</span><div class="wk">Week 1</div><h4>Intake &amp; analyse</h4><p>We brengen je processen, veelgestelde vragen en wensen in kaart.</p></div>
+      <div class="tstep anim" style="--i:4"><span class="num">2</span><div class="wk">Week 2</div><h4>Bouw &amp; training</h4><p>De AI wordt getraind op jouw diensten, prijzen en procedures, met integraties.</p></div>
+      <div class="tstep anim" style="--i:5"><span class="num">3</span><div class="wk">Week 3</div><h4>Testen &amp; finetunen</h4><p>Uitgebreide tests met je team en perfectioneren van de gesprekken.</p></div>
+      <div class="tstep anim" style="--i:6"><span class="num">4</span><div class="wk">Go-live</div><h4>Live &amp; optimaliseren</h4><p>Lancering met doorlopende monitoring en optimalisatie voor topprestaties.</p></div>
+    </div>
+    <div class="pillrow anim" style="--i:7;margin-top:30px">
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> 14 dagen gratis proberen</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> AVG / GDPR-proof</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Je blijft eigenaar van je accounts</span>
+    </div>
+  </section>
+  <!-- 13 FAQ / OBJECTIONS -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M9.5 9a2.5 2.5 0 0 1 4.5 1.5c0 1.5-2 2-2 3M12 17h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Veelgestelde vragen</span></div>
+    <h2 class="title anim" style="--i:1">Twijfels? Die nemen we <span class="grad">meteen weg</span></h2>
+    <div class="faq">
+      <div class="qa anim" style="--i:2"><h4><span class="qm">?</span> Klinkt het niet als een robot?</h4><p>Nee. De AI spreekt vloeiend, natuurlijk Nederlands met een reactietijd onder de halve seconde. In de meeste gesprekken merken bellers het verschil niet — en je kunt het zelf testen.</p></div>
+      <div class="qa anim" style="--i:3"><h4><span class="qm">?</span> Wat als de AI iets niet weet?</h4><p>Dan schakelt hij naadloos door naar een medewerker, zonder wachttijd. Jij krijgt direct een transcript van het gesprek mee.</p></div>
+      <div class="qa anim" style="--i:4"><h4><span class="qm">?</span> Is mijn data veilig?</h4><p>Ja. Alles voldoet aan de AVG/GDPR. Gesprekken worden versleuteld opgeslagen en nooit met derden gedeeld.</p></div>
+      <div class="qa anim" style="--i:5"><h4><span class="qm">?</span> Werkt het met mijn systemen?</h4><p>Ja. Koppeling met gangbare CRM-, agenda- en telefoniesystemen (o.a. HubSpot, Pipedrive, Google Calendar, Outlook).</p></div>
+      <div class="qa anim" style="--i:6"><h4><span class="qm">?</span> Hoeveel werk is opstarten?</h4><p>Weinig. Wij ontzorgen volledig: intake, training en integraties. Binnen 2–3 weken sta je live.</p></div>
+      <div class="qa anim" style="--i:7"><h4><span class="qm">?</span> En als het niet bevalt?</h4><p>14 dagen gratis proberen en maandelijks opzegbaar. Geen jaarcontract, je blijft eigenaar van je accounts.</p></div>
+    </div>
+  </section>
+
+  <!-- 14 PRICING -->
+  <section class="slide center">
+    <div class="anim" style="--i:0"><span class="eyebrow"><svg viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Investering</span></div>
+    <h2 class="title anim" style="--i:1">Transparante <span class="grad">prijzen</span></h2>
+    <p class="lead anim" style="--i:2">Maandelijks opzegbaar, geen jaarcontract. Je blijft omdat het werkt.</p>
+    <div class="pricewrap anim" style="--i:3">
+      <div class="price">
+        <div class="pname">Losse agent</div>
+        <div class="amt">€<span data-count="349">349</span><small> /mnd</small></div>
+        <div class="desc">Voice AI óf WhatsApp AI, schaalbaar op gespreksvolume.</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> 24/7 bereikbaarheid</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> CRM- &amp; agenda-koppeling</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Gespreksverslag per mail</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Doorlopende optimalisatie</li>
+        </ul>
+      </div>
+      <div class="price feat">
+        <div class="ribbon">POPULAIR</div>
+        <div class="pname">Groeipakket</div>
+        <div class="amt">€<span data-count="497">497</span><small> /mnd</small></div>
+        <div class="desc">Voice AI + WhatsApp AI gebundeld met groei-tools.</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Alles uit Losse agent</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Voice &amp; WhatsApp gecombineerd</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Conversie-website + Meta Ads</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Vast aanspreekpunt</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 CLOSING -->
+  <section class="slide center">
+    <div class="anim" style="--i:0"><div class="bigicon"><svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4L3 21l1.1-3.6A8.4 8.4 0 1 1 21 11.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div></div>
+    <h1 class="display anim" style="--i:1;font-size:clamp(38px,5.6vw,76px)">Klaar voor <span class="grad">voorspelbare groei?</span></h1>
+    <p class="lead anim" style="--i:2">Bel de AI zelf en ervaar het in 2 minuten — of plan een gratis demo van 30 minuten. Geen account, geen verplichting.</p>
+    <div class="rule anim" style="--i:3"></div>
+    <div class="ctarow anim" style="--i:4;justify-content:center">
+      <a class="cta green" href="tel:+31481700208">Bel de AI nu <svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></a>
+      <a class="cta ghost" href="https://growguide.ai/voice-ai" target="_blank">Gratis demo plannen <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="contact anim" style="--i:5">
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.7"/></svg> +31 481 700 208</span>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18v12H3zM3 7l9 6 9-6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg> info@growguide.ai</span>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-7-10a7 7 0 0 1 14 0c0 5.5-7 10-7 10z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="11" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg> Einsteinweg 23, Elst</span>
+    </div>
+  </section>
+</div>
+
+<div class="kbhint" id="kbhint">Gebruik ← → of spatie om te navigeren</div>
+
+<div class="botbar">
+  <div class="foot"><span class="gg"><b>GrowGuide</b></span> · <span id="footnote">Voice AI &amp; WhatsApp AI voorstel</span></div>
+  <div class="nav">
+    <div class="arrow" onclick="prev()"><svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="dots" id="dots"></div>
+    <div class="arrow" onclick="next()"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="counter" id="counter">1 / 15</div>
+    <div class="fs" onclick="toggleFS()"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   PERSONALISATIE — pas deze regel aan per prospect.
+   Laat leeg ("") voor een generieke versie.
+   ============================================================ */
+const CONFIG = { prospect: "", company: "GrowGuide" };
+
+/* personalisatie toepassen */
+if(CONFIG.prospect){
+  document.getElementById('badgeTxt').textContent = "Persoonlijk voorstel voor " + CONFIG.prospect;
+  document.getElementById('footnote').textContent = "Gemaakt voor " + CONFIG.prospect;
+}
+
+const slides=[...document.querySelectorAll('.slide')];
+const total=slides.length;
+let cur=0;
+const dotsEl=document.getElementById('dots');
+const counter=document.getElementById('counter');
+const progress=document.getElementById('progress');
+slides.forEach((_,i)=>{const d=document.createElement('i');if(i===0)d.className='on';d.onclick=()=>go(i);dotsEl.appendChild(d);});
+const dots=[...dotsEl.children];
+
+/* count-up cijfers */
+function animateCounters(slide){
+  slide.querySelectorAll('[data-count]').forEach(el=>{
+    const target=parseFloat(el.dataset.count);
+    const pre=el.dataset.pre||'', suf=el.dataset.suf||'';
+    const dur=900, t0=performance.now();
+    const ease=t=>1-Math.pow(1-t,3);
+    function frame(now){
+      const p=Math.min(1,(now-t0)/dur);
+      el.textContent=pre+Math.round(target*ease(p))+suf;
+      if(p<1)requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+function render(){
+  slides.forEach((s,i)=>s.classList.toggle('active',i===cur));
+  dots.forEach((d,i)=>d.classList.toggle('on',i===cur));
+  counter.textContent=(cur+1)+' / '+total;
+  progress.style.width=((cur+1)/total*100)+'%';
+  animateCounters(slides[cur]);
+}
+function go(i){cur=Math.max(0,Math.min(total-1,i));render();}
+function next(){if(cur<total-1){cur++;render();}}
+function prev(){if(cur>0){cur--;render();}}
+function toggleFS(){if(!document.fullscreenElement){document.documentElement.requestFullscreen?.();}else{document.exitFullscreen?.();}}
+
+/* ROI calculator */
+function fmt(n){return '€'+Math.round(n).toLocaleString('nl-NL');}
+function calcROI(){
+  const calls=+document.getElementById('r1').value;
+  const value=+document.getElementById('r2').value;
+  const conv=+document.getElementById('r3').value;
+  document.getElementById('v1').textContent=calls;
+  document.getElementById('v2').textContent='€'+value.toLocaleString('nl-NL');
+  document.getElementById('v3').textContent=conv+'%';
+  const year=calls*52*value*(conv/100);
+  document.getElementById('roiYear').textContent=fmt(year);
+  document.getElementById('roiMonth').textContent=fmt(year/12);
+}
+calcROI();
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();next();}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+  else if(e.key==='Home'){go(0);}else if(e.key==='End'){go(total-1);}
+  else if(e.key==='f'||e.key==='F'){toggleFS();}
+});
+let sx=0;
+addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50){dx<0?next():prev();}},{passive:true});
+setTimeout(()=>{document.getElementById('kbhint').style.opacity='0';},4500);
+render();
+</script>
+</body>
+</html>
