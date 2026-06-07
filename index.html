@@ -92,6 +92,19 @@ h2.title{font-family:'Sora';font-weight:800;font-size:clamp(32px,4.6vw,62px);lin
 .pillrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .pill{font-size:13px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--panel-b);padding:8px 14px;border-radius:999px;display:flex;align-items:center;gap:8px}
 .pill svg{width:14px;height:14px;color:var(--green-l)}
+.trustbar{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:26px;font-size:13px;color:var(--muted)}
+.trustbar i{width:4px;height:4px;border-radius:50%;background:var(--muted2)}
+.trustbar span:first-child{color:var(--amber);font-weight:600}
+.fomo{display:flex;align-items:center;justify-content:center;gap:11px;text-align:center;margin-top:26px;font-size:15px;color:#dbe3f7;background:linear-gradient(120deg,rgba(139,108,255,.12),rgba(79,124,255,.06));border:1px solid rgba(139,108,255,.3);border-radius:14px;padding:16px 22px}
+.fomo svg{width:20px;height:20px;color:#b3a0ff;flex:none}.fomo b{color:#b3a0ff}
+.anchor{display:inline-flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin:18px auto 0;font-size:15px}
+.anchor .old{color:var(--muted);text-decoration:line-through;text-decoration-color:#fb7185;text-decoration-thickness:2px}
+.anchor svg{width:18px;height:18px;color:var(--blue-l)}
+.anchor .new{color:#fff;font-weight:700}
+.guarantee{display:flex;align-items:center;gap:13px;justify-content:center;text-align:left;max-width:760px;margin:24px auto 0;background:linear-gradient(120deg,rgba(34,197,94,.1),rgba(34,197,94,.04));border:1px solid rgba(34,197,94,.32);border-radius:14px;padding:16px 22px;font-size:14px;color:#dbe3f7}
+.guarantee svg{width:26px;height:26px;color:var(--green-l);flex:none}.guarantee b{color:var(--green-l)}
+.scarcity{display:inline-flex;align-items:center;gap:10px;margin-top:22px;font-size:13.5px;color:#ffd9a8;background:rgba(245,177,61,.1);border:1px solid rgba(245,177,61,.3);border-radius:999px;padding:10px 20px}
+.scarcity .dotp{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber);animation:pulse 1.6s infinite;flex:none}
 
 .kbadge{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;color:#c7d4ff;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.32);padding:9px 18px;border-radius:999px;margin-bottom:28px}
 .kbadge .d{width:7px;height:7px;border-radius:50%;background:var(--blue-l);box-shadow:0 0 8px var(--blue-l)}
@@ -274,6 +287,13 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
       <div class="card a"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div><div class="big">5.0/5</div><div class="lbl">59 reviews</div></div>
     </div>
     <button class="cta anim" style="--i:4" onclick="go(1)">Bekijk het voorstel <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="trustbar anim" style="--i:5">
+      <span>★★★★★ 5.0 · 59 reviews</span><i></i>
+      <span>100+ MKB-klanten</span><i></i>
+      <span>40+ agents live</span><i></i>
+      <span>AVG / GDPR-proof</span><i></i>
+      <span>KvK geregistreerd</span>
+    </div>
   </section>
 
   <!-- 2 PROBLEM -->
@@ -288,8 +308,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
         <div class="prow anim" style="--i:5"><span class="x"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span><div><h4>Personeel is duur en beperkt</h4><p>Een receptionist kost duizenden euro’s per maand, werkt alleen overdag en kan maar één gesprek tegelijk.</p></div></div>
       </div>
       <div class="cards anim" style="--i:6;flex-direction:column">
-        <div class="card a"><div class="big"><span data-count="47" data-suf=" uur">47 uur</span></div><div class="lbl">gemiddelde reactietijd op een nieuwe lead</div></div>
-        <div class="card" style="margin-top:0"><div class="big" style="color:#fb7185"><span data-count="78" data-suf="%">78%</span></div><div class="lbl">van de kopers kiest het bedrijf dat als eerste reageert <span style="opacity:.6">· Lead Response Mgmt</span></div></div>
+        <div class="card a"><div class="big"><span data-count="62" data-suf="%">62%</span></div><div class="lbl">van de oproepen blijft in piekuren onbeantwoord <span style="opacity:.6">· branchecijfer</span></div></div>
+        <div class="card" style="margin-top:0"><div class="big" style="color:#fb7185"><span data-count="85" data-suf="%">85%</span></div><div class="lbl">van de bellers belt nóóit terug na geen gehoor — ze bellen je concurrent</div></div>
       </div>
     </div>
   </section>
@@ -324,6 +344,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
         <div class="sub">Vanaf €349/mnd vang je dit op — vaak terugverdiend met één gered contact.</div>
       </div>
     </div>
+    <div class="warn anim" style="--i:4;max-width:none;margin-top:24px;background:rgba(244,63,94,.07);border-color:rgba(244,63,94,.28)"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="#fb7185" stroke-width="1.8" stroke-linejoin="round"/></svg><p style="color:#e7ecfb"><b style="color:#fb7185">Dit loopt nú door.</b> Elke week dat je wacht, kost dit bedrag. En die klanten? Die belt je concurrent — en komen niet meer terug.</p></div>
   </section>
   <!-- 4 SOLUTION -->
   <section class="slide">
@@ -440,6 +461,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
         <div class="who"><div class="av">MR</div><div><b>Makelaarskantoor</b><small>Rotterdam</small></div></div>
       </div>
     </div>
+    <div class="fomo anim" style="--i:6"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg> <b>68%</b> van de bedrijven zet AI al in voor klantcontact. De vraag is niet óf, maar of jij de eerste of de laatste in jouw branche bent.</div>
   </section>
 
   <!-- 8 COMPARISON -->
@@ -541,7 +563,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
     <div class="anim" style="--i:0"><span class="eyebrow"><svg viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Investering</span></div>
     <h2 class="title anim" style="--i:1">Transparante <span class="grad">prijzen</span></h2>
     <p class="lead anim" style="--i:2">Maandelijks opzegbaar, geen jaarcontract. Je blijft omdat het werkt.</p>
-    <div class="pricewrap anim" style="--i:3">
+    <div class="anchor anim" style="--i:3"><span class="old">Een vaste receptionist: €2.800+ p/mnd</span> <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <span class="new">Jouw AI: vanaf €349 p/mnd · 24/7 · nooit ziek</span></div>
+    <div class="pricewrap anim" style="--i:4">
       <div class="price">
         <div class="pname">Losse agent</div>
         <div class="amt">€<span data-count="349">349</span><small> /mnd</small></div>
@@ -566,6 +589,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
         </ul>
       </div>
     </div>
+    <div class="guarantee anim" style="--i:5"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 4 6v6c0 5 4 8 8 9 4-1 8-4 8-9V6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>100% risicovrij.</b> 14 dagen gratis proberen · maandelijks opzegbaar · jij blijft eigenaar van je accounts. Eén gered gesprek verdient vaak meerdere maanden terug.</div></div>
   </section>
 
   <!-- 15 CLOSING -->
@@ -578,6 +602,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
       <a class="cta green" href="tel:+31481700208">Bel de AI nu <svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></a>
       <a class="cta ghost" href="https://growguide.ai/voice-ai" target="_blank">Gratis demo plannen <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
+    <div class="scarcity anim" style="--i:5"><span class="dotp"></span> We werken met maatwerk en nemen een beperkt aantal nieuwe klanten per maand aan. Elke week wachten = leads die je concurrent oppikt.</div>
     <div class="contact anim" style="--i:5">
       <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.7"/></svg> +31 481 700 208</span>
       <span><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18v12H3zM3 7l9 6 9-6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg> info@growguide.ai</span>

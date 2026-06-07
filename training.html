@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowGuide — Verkooptraining Voice AI & WhatsApp AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b16;--bg2:#0a1020;--ink:#eef3ff;--muted:#8a96b5;--muted2:#5e6a88;
+  --blue:#4f7cff;--blue-l:#7aa0ff;--violet:#8b6cff;--green:#22c55e;--green-l:#4ade80;--amber:#f5b13d;
+  --panel:rgba(255,255,255,.035);--panel-b:rgba(255,255,255,.09);--panel-b2:rgba(255,255,255,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+   radial-gradient(900px 600px at 18% 12%,rgba(79,124,255,.16),transparent 60%),
+   radial-gradient(820px 560px at 86% 88%,rgba(139,108,255,.13),transparent 60%),
+   radial-gradient(700px 500px at 90% 8%,rgba(34,197,94,.07),transparent 60%),
+   linear-gradient(180deg,#070b16,#060912)}
+.grid-layer{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:60px 60px;-webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 40%,transparent 100%);mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 40%,transparent 100%)}
+.progress{position:fixed;top:0;left:0;height:3px;z-index:8;background:linear-gradient(90deg,var(--blue),var(--violet));width:0;transition:width .5s ease;box-shadow:0 0 12px rgba(79,124,255,.6)}
+
+.stage{position:relative;z-index:2;height:100vh;width:100vw}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:64px clamp(40px,7vw,130px) 104px;opacity:0;visibility:hidden;transform:scale(.985);
+  transition:opacity .5s ease,transform .5s ease,visibility .5s;overflow:hidden}
+.slide.active{opacity:1;visibility:visible;transform:scale(1)}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:22px clamp(28px,4vw,52px);pointer-events:none}
+.brand{display:flex;align-items:center;gap:11px;font-family:'Sora';font-weight:700;font-size:20px;letter-spacing:-.01em}
+.brand .logo{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--violet));box-shadow:0 6px 22px rgba(79,124,255,.4)}
+.brand .logo svg{width:17px;height:17px}
+.brand b{color:#fff}.brand span{color:var(--blue-l)}
+.tagtop{pointer-events:auto;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:#dfe7ff;background:linear-gradient(135deg,rgba(79,124,255,.9),rgba(110,92,255,.9));padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 26px rgba(79,124,255,.35)}
+.tagtop .dot{width:8px;height:8px;border-radius:50%;background:var(--green-l);box-shadow:0 0 8px var(--green-l)}
+
+.botbar{position:fixed;bottom:0;left:0;right:0;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:20px clamp(28px,4vw,52px)}
+.foot{font-size:12.5px;color:var(--muted2);display:flex;align-items:center;gap:8px}
+.foot .gg{display:flex;align-items:center;gap:6px;opacity:.8}.foot b{color:var(--blue-l)}
+.nav{display:flex;align-items:center;gap:18px}
+.dots{display:flex;align-items:center;gap:7px}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);cursor:pointer;transition:.3s}
+.dots i.on{width:26px;border-radius:5px;background:linear-gradient(90deg,var(--blue),var(--blue-l))}
+.arrow{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--panel-b);color:#cdd6ef;transition:.2s}
+.arrow:hover{background:rgba(255,255,255,.12);color:#fff}.arrow svg{width:17px;height:17px}
+.counter{font-size:13px;color:var(--muted);min-width:48px;text-align:right;font-variant-numeric:tabular-nums}
+.fs{cursor:pointer;color:var(--muted2);transition:.2s}.fs:hover{color:#fff}.fs svg{width:18px;height:18px}
+
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--blue-l);margin-bottom:22px}
+.eyebrow.green{color:var(--green-l)}.eyebrow.amber{color:var(--amber)}.eyebrow.violet{color:#b3a0ff}
+.eyebrow svg{width:17px;height:17px}
+.eyebrow .mod{font-family:'Sora';background:rgba(79,124,255,.16);color:var(--blue-l);border-radius:6px;padding:2px 9px;letter-spacing:.02em}
+h1.display{font-family:'Sora';font-weight:800;font-size:clamp(40px,6.4vw,88px);line-height:1.03;letter-spacing:-.025em;color:#fff}
+h2.title{font-family:'Sora';font-weight:800;font-size:clamp(30px,4.4vw,58px);line-height:1.06;letter-spacing:-.02em;color:#fff}
+.grad{background:linear-gradient(100deg,var(--blue-l),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-g{background:linear-gradient(100deg,var(--green-l),#86efac);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-a{background:linear-gradient(100deg,#ffd083,var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:clamp(16px,1.5vw,21px);color:var(--muted);line-height:1.55;max-width:820px}
+.center{align-items:center;text-align:center}.center .lead{margin:0 auto}
+
+.slide .anim{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease}
+.slide.active .anim{opacity:1;transform:none;transition-delay:calc(var(--i,0)*48ms + 80ms)}
+
+.cards{display:flex;gap:18px;flex-wrap:wrap;margin-top:34px}
+.card{flex:1;min-width:200px;background:var(--panel);border:1px solid var(--panel-b);border-radius:18px;padding:22px 24px;position:relative;overflow:hidden}
+.card .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px;background:rgba(79,124,255,.14);color:var(--blue-l)}
+.card .ic svg{width:21px;height:21px}
+.card .big{font-family:'Sora';font-weight:800;font-size:clamp(24px,2.4vw,32px);line-height:1;letter-spacing:-.02em;color:#fff}
+.card .lbl{color:var(--muted);font-size:14px;margin-top:8px;line-height:1.5}
+.card.g .ic{background:rgba(34,197,94,.14);color:var(--green-l)}.card.a .ic{background:rgba(245,177,61,.14);color:var(--amber)}.card.v .ic{background:rgba(139,108,255,.16);color:#b3a0ff}
+.card.b .big2{color:var(--blue-l)}.card.g .big2{color:var(--green-l)}.card.a .big2{color:var(--amber)}.card.v .big2{color:#b3a0ff}
+.card::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent);opacity:.5}
+.card.g::after{background:linear-gradient(90deg,transparent,var(--green),transparent)}.card.a::after{background:linear-gradient(90deg,transparent,var(--amber),transparent)}.card.v::after{background:linear-gradient(90deg,transparent,var(--violet),transparent)}
+
+.pillrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.pill{font-size:13px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--panel-b);padding:8px 14px;border-radius:999px;display:flex;align-items:center;gap:8px}
+.pill svg{width:14px;height:14px;color:var(--green-l)}
+
+.kbadge{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;color:#c7d4ff;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.32);padding:9px 18px;border-radius:999px;margin-bottom:28px}
+.kbadge .d{width:7px;height:7px;border-radius:50%;background:var(--blue-l);box-shadow:0 0 8px var(--blue-l)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;width:100%}
+@media(max-width:1000px){.two{grid-template-columns:1fr;gap:24px}}
+
+/* agenda / module list */
+.agenda{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px;width:100%}
+@media(max-width:1000px){.agenda{grid-template-columns:repeat(2,1fr)}}
+.mcard{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:18px;transition:.2s}
+.mcard:hover{border-color:var(--panel-b2)}
+.mcard .n{font-family:'Sora';font-weight:800;font-size:20px;color:var(--blue-l);flex:none;width:34px;height:34px;border-radius:9px;background:rgba(79,124,255,.13);display:grid;place-items:center}
+.mcard b{font-size:15px;color:#fff;display:block;margin-bottom:2px}
+.mcard small{font-size:12.5px;color:var(--muted);line-height:1.45}
+
+/* numbered steps list */
+.steps{display:flex;flex-direction:column;gap:13px;margin-top:14px}
+.step{display:flex;gap:16px;align-items:flex-start;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:16px 18px}
+.step .sn{width:30px;height:30px;flex:none;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-weight:700;display:grid;place-items:center;font-size:14px}
+.step h4{font-size:15.5px;color:#fff;margin-bottom:3px}
+.step p{font-size:13.5px;color:var(--muted);line-height:1.5}
+
+/* checklist (pitch points) */
+.checks{display:flex;flex-direction:column;gap:13px;margin-top:14px}
+.chk{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:15px 18px}
+.chk .ci{width:28px;height:28px;flex:none;border-radius:8px;background:rgba(34,197,94,.15);color:var(--green-l);display:grid;place-items:center}
+.chk .ci svg{width:16px;height:16px}
+.chk b{color:#fff;font-size:15px}.chk span{color:var(--muted);font-size:13.5px}
+
+/* objection table */
+.cmp{width:100%;margin-top:20px;border:1px solid var(--panel-b);border-radius:18px;overflow:hidden;background:var(--panel)}
+.crow{display:grid;grid-template-columns:1fr 1.5fr;align-items:flex-start}
+.crow+.crow{border-top:1px solid rgba(255,255,255,.055)}
+.crow.head{background:rgba(255,255,255,.03)}
+.crow.head .cc{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.crow.head .cc.gg{color:var(--green-l)}
+.cc{padding:14px 20px;font-size:14px;line-height:1.5}
+.cc.lbl{font-weight:700;color:#fb7185}
+.cc.ans{color:#dbe3f7}
+.cc.ans b{color:var(--green-l)}
+
+/* do / dont */
+.dd{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px;width:100%}
+@media(max-width:1000px){.dd{grid-template-columns:1fr}}
+.ddcol{background:var(--panel);border:1px solid var(--panel-b);border-radius:18px;padding:24px}
+.ddcol.do{border-color:rgba(34,197,94,.3)}.ddcol.dont{border-color:rgba(244,63,94,.28)}
+.ddcol h3{font-family:'Sora';font-size:18px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.ddcol.do h3{color:var(--green-l)}.ddcol.dont h3{color:#fb7185}
+.ddcol h3 svg{width:22px;height:22px}
+.ddcol li{list-style:none;display:flex;gap:10px;align-items:flex-start;font-size:14px;color:#dbe3f7;line-height:1.5;margin-bottom:11px}
+.ddcol li svg{width:16px;height:16px;flex:none;margin-top:2px}
+.ddcol.do li svg{color:var(--green-l)}.ddcol.dont li svg{color:#fb7185}
+
+/* trigger grid */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px;width:100%}
+@media(max-width:1000px){.tgrid{grid-template-columns:repeat(2,1fr)}}
+.tg{background:var(--panel);border:1px solid var(--panel-b);border-radius:16px;padding:20px}
+.tg .ti{width:38px;height:38px;border-radius:10px;background:rgba(139,108,255,.16);color:#b3a0ff;display:grid;place-items:center;margin-bottom:12px}
+.tg .ti svg{width:19px;height:19px}
+.tg b{color:#fff;font-size:15px;display:block;margin-bottom:5px}
+.tg p{color:var(--muted);font-size:13px;line-height:1.5}
+.tg .ex{display:block;margin-top:9px;font-size:12.5px;color:#9fb0d6;font-style:italic;border-left:2px solid rgba(139,108,255,.4);padding-left:10px}
+
+/* CTA */
+.cta{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:16px;color:#fff;background:linear-gradient(135deg,var(--blue),var(--violet));padding:16px 30px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 14px 38px rgba(79,124,255,.4);transition:.22s;margin-top:34px;text-decoration:none}
+.cta:hover{transform:translateY(-2px);box-shadow:0 20px 48px rgba(79,124,255,.5)}
+.cta svg{width:18px;height:18px}
+
+/* quiz */
+.quiz{width:100%;max-width:820px;margin:24px auto 0}
+.qq{font-family:'Sora';font-weight:700;font-size:clamp(20px,2.4vw,28px);color:#fff;margin-bottom:8px}
+.qprog{font-size:13px;color:var(--muted);margin-bottom:20px}
+.qopts{display:flex;flex-direction:column;gap:12px}
+.qopt{display:flex;gap:13px;align-items:center;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:16px 18px;cursor:pointer;transition:.18s;font-size:15px;color:#e7ecfb;text-align:left}
+.qopt:hover{border-color:var(--panel-b2);background:rgba(255,255,255,.05)}
+.qopt .ql{width:28px;height:28px;flex:none;border-radius:8px;background:rgba(255,255,255,.07);display:grid;place-items:center;font-weight:700;color:#9fb0d6;font-size:13px}
+.qopt.correct{border-color:var(--green-l);background:rgba(34,197,94,.12)}
+.qopt.correct .ql{background:var(--green-l);color:#06210f}
+.qopt.wrong{border-color:#fb7185;background:rgba(244,63,94,.1)}
+.qopt.wrong .ql{background:#fb7185;color:#3a0a12}
+.qfb{margin-top:16px;font-size:14px;color:#dbe3f7;background:var(--panel);border:1px solid var(--panel-b);border-radius:12px;padding:14px 18px;display:none}
+.qfb.show{display:block}.qfb b{color:var(--green-l)}
+.qnext{margin-top:18px;display:none}.qnext.show{display:inline-flex}
+.qscore{text-align:center}
+.qscore .big{font-family:'Sora';font-weight:800;font-size:clamp(44px,6vw,72px);color:var(--green-l)}
+
+.bigicon{width:92px;height:92px;border-radius:26px;display:grid;place-items:center;margin:0 auto 28px;background:linear-gradient(135deg,rgba(79,124,255,.2),rgba(139,108,255,.16));border:1px solid rgba(79,124,255,.3)}
+.bigicon svg{width:44px;height:44px;color:var(--blue-l)}
+.rule{width:60px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--violet));margin:24px auto}
+
+/* recap cheat */
+.recap{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:28px;width:100%}
+@media(max-width:1000px){.recap{grid-template-columns:1fr}}
+.rc{background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:18px 20px}
+.rc h4{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:10px}
+.rc li{list-style:none;font-size:13.5px;color:#dbe3f7;line-height:1.5;margin-bottom:7px;padding-left:16px;position:relative}
+.rc li::before{content:"▸";position:absolute;left:0;color:var(--blue-l)}
+
+.kbhint{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);z-index:5;font-size:12px;color:var(--muted2);opacity:.75;transition:opacity .5s;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="grid-layer"></div>
+<div class="progress" id="progress"></div>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7l-9-5z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 12l2.5 2.5L16 9" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span><b>Grow</b><span>Guide</span></span>
+  </div>
+  <div class="tagtop"><span class="dot"></span> Verkooptraining</div>
+</div>
+
+<div class="stage" id="stage">
+
+  <!-- 1 WELCOME -->
+  <section class="slide center">
+    <div class="anim" style="--i:0"><span class="kbadge"><span class="d"></span> Onboarding · nieuwe verkoopmedewerkers</span></div>
+    <h1 class="display anim" style="--i:1">Leer verkopen:<br><span class="grad">Voice AI &amp; WhatsApp AI</span></h1>
+    <p class="lead anim" style="--i:2;margin-top:22px">In deze training leer je wát we verkopen, wáárom klanten kopen en hóe je het overtuigend brengt. Aan het eind doe je een korte kennischeck. Reken op ~15 minuten.</p>
+    <div class="cards anim" style="--i:3;max-width:860px;margin-left:auto;margin-right:auto">
+      <div class="card b"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2zM9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div class="big">7 modules</div><div class="lbl">van product tot closing</div></div>
+      <div class="card g"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="big">1 kennischeck</div><div class="lbl">test jezelf interactief</div></div>
+      <div class="card v"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div class="big">Direct toepasbaar</div><div class="lbl">scripts &amp; one-liners</div></div>
+    </div>
+    <button class="cta anim" style="--i:4" onclick="go(1)">Start de training <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </section>
+
+  <!-- 2 AGENDA -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Wat je gaat leren</span></div>
+    <h2 class="title anim" style="--i:1">De 7 modules van deze <span class="grad">training</span></h2>
+    <div class="agenda">
+      <div class="mcard anim" style="--i:2"><div class="n">1</div><div><b>Wat verkoop je?</b><small>Het product in gewone taal</small></div></div>
+      <div class="mcard anim" style="--i:3"><div class="n">2</div><div><b>De klant begrijpen</b><small>Pijnpunten &amp; koopredenen</small></div></div>
+      <div class="mcard anim" style="--i:4"><div class="n">3</div><div><b>Waarom bij ons</b><small>USP's &amp; de concurrentie</small></div></div>
+      <div class="mcard anim" style="--i:5"><div class="n">4</div><div><b>De pitch</b><small>Structuur &amp; over prijs praten</small></div></div>
+      <div class="mcard anim" style="--i:6"><div class="n">5</div><div><b>Bezwaren wegnemen</b><small>De 6 meest gehoorde</small></div></div>
+      <div class="mcard anim" style="--i:7"><div class="n">6</div><div><b>Overtuigingstriggers</b><small>De psychologie van kopen</small></div></div>
+      <div class="mcard anim" style="--i:8"><div class="n">7</div><div><b>Het verkoopproces</b><small>Van eerste contact tot deal</small></div></div>
+      <div class="mcard anim" style="--i:9"><div class="n">✓</div><div><b>Kennischeck</b><small>Test wat je hebt geleerd</small></div></div>
+      <div class="mcard anim" style="--i:10"><div class="n">★</div><div><b>Spiekbriefje</b><small>Alles op één scherm</small></div></div>
+    </div>
+  </section>
+
+  <!-- 3 MODULE 1 — PRODUCT -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 1</span> Wat verkoop je?</span></div>
+    <h2 class="title anim" style="--i:1">Twee AI-collega’s die <span class="grad">nooit een klant laten wachten</span></h2>
+    <p class="lead anim" style="--i:2">Geen keuzemenu, geen wachtrij — échte gesprekken. De klant merkt vaak niet eens dat het AI is.</p>
+    <div class="cards anim" style="--i:3;margin-top:36px">
+      <div class="card b" style="padding:28px"><div class="ic" style="width:48px;height:48px"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div class="big" style="font-size:22px">Voice AI</div><div class="lbl">Neemt de telefoon op, voert een volwaardig gesprek, beantwoordt vragen, checkt orders, plant &amp; verzet afspraken en mailt na elk gesprek een verslag.</div></div>
+      <div class="card g" style="padding:28px"><div class="ic" style="width:48px;height:48px"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.6-1.2A9 9 0 1 0 12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div class="big" style="font-size:22px">WhatsApp AI</div><div class="lbl">Reageert binnen 1 seconde op elke nieuwe lead, kwalificeert, beantwoordt vragen en plant de afspraak — automatisch, 24/7.</div></div>
+    </div>
+    <div class="pillrow anim" style="--i:4">
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Vloeiend Nederlands (ook DE, EN, ES)</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Koppelt met CRM &amp; agenda</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Schakelt door naar een mens</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Live binnen 2–3 weken</span>
+    </div>
+  </section>
+  <!-- 4 VOOR WIE -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 1</span> Voor wie</span></div>
+    <h2 class="title anim" style="--i:1">Aan wie verkoop je dit?</h2>
+    <p class="lead anim" style="--i:2">Elk MKB met telefonisch klantcontact dat oproepen mist. Onthoud: sommige branches kopen sneller (impulsief), andere hebben meer nurturing nodig.</p>
+    <div class="two" style="margin-top:30px">
+      <div class="anim" style="--i:3">
+        <div class="card g" style="min-width:0"><div class="big" style="font-size:18px;color:var(--green-l)">⚡ Kopen snel (impulsief)</div><div class="lbl" style="margin-top:10px">Hoog belvolume + zichtbaar omzetverlies nú. Een goede demo is vaak genoeg.</div></div>
+        <div class="pillrow"><span class="pill">Installateurs</span><span class="pill">Tandartsen &amp; zorg</span><span class="pill">Makelaars</span><span class="pill">E-commerce</span></div>
+      </div>
+      <div class="anim" style="--i:4">
+        <div class="card a" style="min-width:0"><div class="big" style="font-size:18px;color:var(--amber)">🕊 Hebben nurturing nodig</div><div class="lbl" style="margin-top:10px">Vertrouwens- en discretiegevoelig. Leid met privacy, AVG en menselijke doorverbinding.</div></div>
+        <div class="pillrow"><span class="pill">Advocaten</span><span class="pill">Accountants</span><span class="pill">Financieel adviseurs</span></div>
+      </div>
+    </div>
+    <div class="pillrow anim" style="--i:5" style="margin-top:24px"><span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Vuistregel: krijgen ze veel telefoon en kunnen ze niet alles opnemen? Dan is dit voor hen.</span></div>
+  </section>
+
+  <!-- 5 MODULE 2 — PIJNPUNTEN -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow amber"><span class="mod" style="background:rgba(245,177,61,.16);color:var(--amber)">Module 2</span> De klant begrijpen</span></div>
+    <h2 class="title anim" style="--i:1">Voel de pijn van je klant</h2>
+    <p class="lead anim" style="--i:2">Je verkoopt pas goed als je het probleem béter verwoordt dan de klant zelf kan. Dit zijn de pijnpunten — gebruik ze als haakje.</p>
+    <div class="two" style="margin-top:30px">
+      <div class="steps">
+        <div class="step anim" style="--i:3"><span class="sn">!</span><div><h4>Gemiste calls = gemiste omzet</h4><p>’s Avonds, weekend en tijdens drukte staat de lijn stil — precies wanneer klanten bellen.</p></div></div>
+        <div class="step anim" style="--i:4"><span class="sn">!</span><div><h4>De telefoon trekt je weg van je werk</h4><p>Een monteur op de klus of tandarts bij een patiënt kan niet opnemen — en wil dat ook niet.</p></div></div>
+        <div class="step anim" style="--i:5"><span class="sn">!</span><div><h4>Personeel is duur en beperkt</h4><p>Een receptionist kost duizenden euro’s, werkt alleen overdag en kan één gesprek tegelijk.</p></div></div>
+      </div>
+      <div class="cards anim" style="--i:6;flex-direction:column">
+        <div class="card a"><div class="big" style="color:var(--amber)"><span data-count="62" data-suf="%">62%</span></div><div class="lbl">van de oproepen blijft in piekuren onbeantwoord</div></div>
+        <div class="card" style="margin-top:0"><div class="big" style="color:#fb7185"><span data-count="85" data-suf="%">85%</span></div><div class="lbl">van de bellers belt nóóit terug — ze bellen je concurrent</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 KOOPREDENEN / EMOTIE -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow amber"><span class="mod" style="background:rgba(245,177,61,.16);color:var(--amber)">Module 2</span> Waarom kopen mensen?</span></div>
+    <h2 class="title anim" style="--i:1">Mensen kopen op <span class="grad-a">emotie</span>, niet op specs</h2>
+    <p class="lead anim" style="--i:2">De echte koopreden is omzetherstel — niet bezuinigen. Verkoop het gevoel, onderbouw met de cijfers.</p>
+    <div class="tgrid" style="margin-top:26px">
+      <div class="tg anim" style="--i:3"><div class="ti" style="background:rgba(244,63,94,.14);color:#fb7185"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10z" stroke="currentColor" stroke-width="1.7"/></svg></div><b>Verlies-aversie (sterkst)</b><p>Angst om klanten te verliezen aan de concurrent.</p><span class="ex">“Elke gemiste call is een klant die je concurrent net won.”</span></div>
+      <div class="tg anim" style="--i:4"><div class="ti" style="background:rgba(34,197,94,.14);color:var(--green-l)"><svg viewBox="0 0 24 24" fill="none"><path d="M3 17l6-6 4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><b>Meer omzet (gain)</b><p>Meer leads, meer geboekte afspraken.</p><span class="ex">“30–50% meer gekwalificeerde leads in maand 1.”</span></div>
+      <div class="tg anim" style="--i:5"><div class="ti" style="background:rgba(79,124,255,.14);color:var(--blue-l)"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><b>Rust &amp; opluchting</b><p>Nooit meer stress over de rinkelende telefoon.</p><span class="ex">“Je hoeft je nooit meer druk te maken over een gemiste klant.”</span></div>
+      <div class="tg anim" style="--i:6"><div class="ti"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><b>FOMO / status</b><p>68% gebruikt al AI — niet de laatste willen zijn.</p><span class="ex">“Wees de eerste in jouw branche, niet de laatste.”</span></div>
+      <div class="tg anim" style="--i:7"><div class="ti" style="background:rgba(245,177,61,.14);color:var(--amber)"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div><b>Trots &amp; identiteit</b><p>Een modern, altijd-aan, professioneel bedrijf runnen.</p><span class="ex">“Geef je serieuze bedrijf een voordeur die altijd open is.”</span></div>
+      <div class="tg anim" style="--i:8"><div class="ti" style="background:rgba(34,197,94,.14);color:var(--green-l)"><svg viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><b>Kostenvoordeel</b><p>Fractie van een receptionist, 24/7 inzetbaar.</p><span class="ex">“Vanaf €349 i.p.v. €2.800+ voor een mens.”</span></div>
+    </div>
+  </section>
+  <!-- 7 MODULE 3 — USPs -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 3</span> Waarom bij ons?</span></div>
+    <h2 class="title anim" style="--i:1">Het marktprobleem — en <span class="grad">hoe wij het oplossen</span></h2>
+    <p class="lead anim" style="--i:2">De meeste AI-agents klinken robotachtig, reageren traag en kúnnen niets. Dát is je opening: wij doen het tegenovergestelde.</p>
+    <div class="cmp anim" style="--i:3" style="margin-top:24px">
+      <div class="crow head"><div class="cc">Het marktprobleem</div><div class="cc gg">● Zo lossen wij het op</div></div>
+      <div class="crow"><div class="cc lbl">Klinkt robotachtig</div><div class="cc ans"><b>Natuurlijk Nederlands</b>, reactietijd onder 0,5 sec — bellers merken het verschil niet.</div></div>
+      <div class="crow"><div class="cc lbl">Kan alleen antwoorden</div><div class="cc ans"><b>Boekt de afspraak</b> écht: agenda- &amp; CRM-koppeling, geen loze chat.</div></div>
+      <div class="crow"><div class="cc lbl">Geen vangnet</div><div class="cc ans"><b>Warme doorverbinding</b> naar een mens als het nodig is — geen klant valt buiten de boot.</div></div>
+      <div class="crow"><div class="cc lbl">Generiek &amp; onpersoonlijk</div><div class="cc ans"><b>Maatwerk-training</b> op jouw diensten, prijzen en FAQ + volledige ontzorging.</div></div>
+    </div>
+    <div class="pillrow anim" style="--i:4"><span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Onthoud: “boekt de afspraak, beantwoordt niet alleen.”</span></div>
+  </section>
+
+  <!-- 8 MODULE 4 — DE PITCH -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 4</span> De pitch</span></div>
+    <h2 class="title anim" style="--i:1">Bouw je pitch met <span class="grad">P-A-S</span></h2>
+    <p class="lead anim" style="--i:2">Begin altijd bij het probleem van de klant, niet bij de techniek. Eén pijnpunt per gesprek — niet alles tegelijk.</p>
+    <div class="steps" style="margin-top:24px">
+      <div class="step anim" style="--i:3"><span class="sn">P</span><div><h4>Probleem — benoem de pijn</h4><p>“Hoeveel telefoontjes mist u buiten kantooruren — en hoeveel daarvan was een nieuwe klant?”</p></div></div>
+      <div class="step anim" style="--i:4"><span class="sn">A</span><div><h4>Agiteer — maak het concreet</h4><p>“85% van die bellers belt niet terug. Die omzet gaat rechtstreeks naar uw concurrent.”</p></div></div>
+      <div class="step anim" style="--i:5"><span class="sn">S</span><div><h4>Oplossing — breng rust &amp; omzet</h4><p>“Onze AI neemt 24/7 op, plant de afspraak en u mist nooit meer een klant. Vanaf €349.”</p></div></div>
+    </div>
+    <div class="checks anim" style="--i:6" style="margin-top:8px">
+      <div class="chk"><span class="ci"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>De 4 kernpunten</b> <span>— 24/7 bereikbaar · goedkoper dan een receptionist · meer leads · klinkt menselijk.</span></div></div>
+    </div>
+  </section>
+
+  <!-- 9 OVER PRIJS PRATEN -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 4</span> Over prijs praten</span></div>
+    <h2 class="title anim" style="--i:1">Maak €349 een <span class="grad">koopje</span></h2>
+    <p class="lead anim" style="--i:2">Noem nooit kaal de prijs. Anker eerst de dure mens — dan voelt jouw prijs als weinig.</p>
+    <div class="steps" style="margin-top:24px">
+      <div class="step anim" style="--i:3"><span class="sn">1</span><div><h4>Anker hoog</h4><p>“Een vaste receptionist kost €2.800+ per maand — en is alleen overdag bereikbaar.”</p></div></div>
+      <div class="step anim" style="--i:4"><span class="sn">2</span><div><h4>Plaats jouw prijs ernaast</h4><p>“Onze AI: vanaf €349 per maand. 24/7, nooit ziek, meerdere gesprekken tegelijk.”</p></div></div>
+      <div class="step anim" style="--i:5"><span class="sn">3</span><div><h4>Vertaal naar ROI</h4><p>“Eén gered gesprek (gem. klantwaarde) verdient vaak al meerdere maanden terug.” Gebruik de ROI-calculator in de presentatie.</p></div></div>
+    </div>
+    <div class="pillrow anim" style="--i:6"><span class="pill">Vanaf €349/mnd losse agent</span><span class="pill">€497/mnd groeipakket</span><span class="pill">Maandelijks opzegbaar</span><span class="pill">14 dagen gratis</span></div>
+  </section>
+  <!-- 10 MODULE 5 — BEZWAREN -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 5</span> Bezwaren wegnemen</span></div>
+    <h2 class="title anim" style="--i:1">De 6 bezwaren — en je <span class="grad">antwoord</span></h2>
+    <div class="cmp anim" style="--i:2" style="margin-top:18px">
+      <div class="crow head"><div class="cc">Bezwaar</div><div class="cc gg">● Jouw reactie</div></div>
+      <div class="crow"><div class="cc lbl">“Klinkt als een robot”</div><div class="cc ans"><b>Laat ze de AI zelf bellen.</b> Natuurlijk Nederlands, &lt;0,5 sec. Demo verslaat elk argument.</div></div>
+      <div class="crow"><div class="cc lbl">“Vervangt het de mens?”</div><div class="cc ans">Het is een <b>hulpmiddel</b>: vangt overflow &amp; na sluitingstijd, verbindt echte bellers warm door.</div></div>
+      <div class="crow"><div class="cc lbl">“Begrijpt mijn vak niet”</div><div class="cc ans"><b>Maatwerk-training</b> op hún FAQ's, prijzen en procedures.</div></div>
+      <div class="crow"><div class="cc lbl">“Is mijn data veilig?”</div><div class="cc ans"><b>AVG/GDPR</b>, versleuteld opgeslagen, nooit gedeeld met derden.</div></div>
+      <div class="crow"><div class="cc lbl">“Opstarten is gedoe”</div><div class="cc ans"><b>Volledige ontzorging</b>, live binnen 2–3 weken. Geen technische kennis nodig.</div></div>
+      <div class="crow"><div class="cc lbl">“Te duur”</div><div class="cc ans"><b>Anker</b> tegen €2.800+ receptionist + ROI. 14 dagen gratis, maandelijks opzegbaar.</div></div>
+    </div>
+  </section>
+
+  <!-- 11 MODULE 6 — TRIGGERS -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow violet"><span class="mod" style="background:rgba(139,108,255,.18);color:#b3a0ff">Module 6</span> Overtuigingstriggers</span></div>
+    <h2 class="title anim" style="--i:1">De psychologie die je <span class="grad">inzet</span></h2>
+    <p class="lead anim" style="--i:2">Deze hefbomen zitten al in de sales-presentatie. Wijs er bewust naar tijdens je gesprek.</p>
+    <div class="tgrid" style="margin-top:24px">
+      <div class="tg anim" style="--i:3"><div class="ti"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 13.8 2 9.4h7.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div><b>Social proof</b><p>100+ klanten, 5.0/5, echte cases.</p><span class="ex">“Bedrijven net als het uwe boekten +40%.”</span></div>
+      <div class="tg anim" style="--i:4"><div class="ti"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><b>Verlies-aversie</b><p>De kosten van niets doen.</p><span class="ex">“Dit loopt nú door, elke week.”</span></div>
+      <div class="tg anim" style="--i:5"><div class="ti"><svg viewBox="0 0 24 24" fill="none"><path d="M6 2v6l4 4-4 4v6M18 2v6l-4 4 4 4v6M6 2h12M6 22h12" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div><b>Schaarste</b><p>Beperkt aantal nieuwe klanten per maand.</p><span class="ex">“We werken met maatwerk; plekken zijn beperkt.”</span></div>
+      <div class="tg anim" style="--i:6"><div class="ti"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 4 6v6c0 5 4 8 8 9 4-1 8-4 8-9V6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><b>Risico-omkering</b><p>Neem de angst weg.</p><span class="ex">“14 dagen gratis, maandelijks opzegbaar, jij blijft eigenaar.”</span></div>
+      <div class="tg anim" style="--i:7"><div class="ti"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3h6M10 3v6L5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1l-5-10V3" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><b>Autoriteit</b><p>Onderzoek + cijfers.</p><span class="ex">“Harvard &amp; MIT: snelheid bepaalt wie de deal krijgt.”</span></div>
+      <div class="tg anim" style="--i:8"><div class="ti"><svg viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><b>Anchoring</b><p>Duur eerst, dan jouw prijs.</p><span class="ex">“€2.800 receptionist → €349 AI.”</span></div>
+    </div>
+  </section>
+
+  <!-- 12 DE DEMO -->
+  <section class="slide center">
+    <div class="anim" style="--i:0"><div class="bigicon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div></div>
+    <h2 class="title anim" style="--i:1">De demo is je <span class="grad-g">sterkste wapen</span></h2>
+    <p class="lead anim" style="--i:2">Praat niet alleen óver de AI — laat de prospect ’m zélf bellen. Eén gesprek van 2 minuten overtuigt meer dan elke slide. Geen account, geen verplichting.</p>
+    <div class="pillrow anim" style="--i:3" style="justify-content:center;margin-top:26px">
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Altijd aansturen op een live demo</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Lage drempel = makkelijke ja</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Laat ze het verschil hóren</span>
+    </div>
+  </section>
+  <!-- 13 MODULE 7 — PROCES -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 7</span> Het verkoopproces</span></div>
+    <h2 class="title anim" style="--i:1">Van eerste contact tot <span class="grad">getekende deal</span></h2>
+    <div class="steps" style="margin-top:24px">
+      <div class="step anim" style="--i:2"><span class="sn">1</span><div><h4>Kwalificeren</h4><p>Krijgt het bedrijf veel telefoon? Mist het oproepen? Welke branche? Bepaal impuls vs. nurturing.</p></div></div>
+      <div class="step anim" style="--i:3"><span class="sn">2</span><div><h4>Pijn blootleggen (P-A-S)</h4><p>Stel de juiste vragen, laat de prospect de pijn zelf uitspreken. Stuur de sales-presentatie.</p></div></div>
+      <div class="step anim" style="--i:4"><span class="sn">3</span><div><h4>Demo geven</h4><p>Laat de AI zelf bellen. Dit is hét kantelpunt — altijd op aansturen.</p></div></div>
+      <div class="step anim" style="--i:5"><span class="sn">4</span><div><h4>Prijs ankeren &amp; afsluiten</h4><p>€2.800 → €349, ROI tonen, risico wegnemen (gratis proberen) en schaarste benoemen.</p></div></div>
+      <div class="step anim" style="--i:6"><span class="sn">5</span><div><h4>Opvolgen</h4><p>Geen ja? Volg snel op. Snelheid wint — wie eerst reageert, sluit. Plan een concreet vervolgmoment.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 14 DO / DONT -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow green"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Tone of voice</span></div>
+    <h2 class="title anim" style="--i:1">Zo verkoop je het <span class="grad-g">goed</span></h2>
+    <div class="dd">
+      <div class="ddcol do anim" style="--i:2">
+        <h3><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Wél doen</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Verkoop <b>rust &amp; omzet</b>, geen techniek</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Begin bij hún probleem, niet bij features</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Eén pijnpunt per gesprek, helder</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Stuur áltijd aan op de live demo</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Onderbouw met cijfers &amp; cases</li>
+        </ul>
+      </div>
+      <div class="ddcol dont anim" style="--i:3">
+        <h3><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg> Niet doen</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg> Technische termen of AI-jargon</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg> Alle features tegelijk opsommen</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg> Kaal de prijs noemen zonder anker</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg> Resultaten beloven die je niet kunt staven</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg> Pushen bij vertrouwens-branches</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <!-- 15 QUIZ -->
+  <section class="slide center">
+    <div class="anim" style="--i:0"><span class="eyebrow green"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M9.5 9a2.5 2.5 0 0 1 4.5 1.5c0 1.5-2 2-2 3M12 17h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Kennischeck</span></div>
+    <h2 class="title anim" style="--i:1">Test wat je hebt <span class="grad-g">geleerd</span></h2>
+    <div class="quiz anim" style="--i:2" id="quizbody"></div>
+  </section>
+
+  <!-- 16 SPIEKBRIEFJE -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow amber"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3h6a2 2 0 0 1 2 2v0H7v0a2 2 0 0 1 2-2zM7 5h10v16H7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Spiekbriefje</span></div>
+    <h2 class="title anim" style="--i:1">Alles op <span class="grad-a">één scherm</span></h2>
+    <div class="recap">
+      <div class="rc anim" style="--i:2"><h4>De pitch (4 punten)</h4><li>24/7 bereikbaar</li><li>Goedkoper dan een receptionist</li><li>30–50% meer leads</li><li>Klinkt menselijk</li></div>
+      <div class="rc anim" style="--i:3"><h4>Sterke cijfers</h4><li>62% calls onbeantwoord in piek</li><li>85% belt niet terug</li><li>Live in 2–3 weken · 5.0/5 · 100+ klanten</li><li>Vanaf €349/mnd</li></div>
+      <div class="rc anim" style="--i:4"><h4>Prijsanker</h4><li>Receptionist €2.800+ → AI €349</li><li>“Eén gered gesprek verdient maanden terug”</li><li>14 dagen gratis · maandelijks opzegbaar</li></div>
+      <div class="rc anim" style="--i:5"><h4>Gouden regels</h4><li>Verkoop rust &amp; omzet, geen techniek</li><li>Stuur áltijd aan op de demo</li><li>Begin bij de pijn van de klant</li></div>
+    </div>
+  </section>
+
+  <!-- 17 AFSLUITING -->
+  <section class="slide center">
+    <div class="anim" style="--i:0"><div class="bigicon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+    <h1 class="display anim" style="--i:1;font-size:clamp(36px,5.4vw,72px)">Je bent er <span class="grad">klaar voor</span></h1>
+    <p class="lead anim" style="--i:2">Pak de sales-presentatie erbij, ken je cijfers en stuur aan op de demo. Succes — en mis nooit meer een klant.</p>
+    <div class="rule anim" style="--i:3"></div>
+    <a class="cta anim" style="--i:4" href="https://growguide.github.io/voice-ai/" target="_blank">Open de sales-presentatie <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <div class="pillrow anim" style="--i:5" style="justify-content:center;margin-top:24px"><span class="pill">Vragen? Bel je teamlead</span><span class="pill">Test de AI: +31 481 700 208</span></div>
+  </section>
+</div>
+
+<div class="kbhint" id="kbhint">Gebruik ← → of spatie om te navigeren</div>
+
+<div class="botbar">
+  <div class="foot"><span class="gg"><b>GrowGuide</b></span> · <span>Onboarding sales · Voice &amp; WhatsApp AI</span></div>
+  <div class="nav">
+    <div class="arrow" onclick="prev()"><svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="dots" id="dots"></div>
+    <div class="arrow" onclick="next()"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="counter" id="counter">1 / 1</div>
+    <div class="fs" onclick="toggleFS()"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const total=slides.length;
+let cur=0;
+const dotsEl=document.getElementById('dots');
+const counter=document.getElementById('counter');
+const progress=document.getElementById('progress');
+slides.forEach((_,i)=>{const d=document.createElement('i');if(i===0)d.className='on';d.onclick=()=>go(i);dotsEl.appendChild(d);});
+const dots=[...dotsEl.children];
+function animateCounters(slide){
+  slide.querySelectorAll('[data-count]').forEach(el=>{
+    const target=parseFloat(el.dataset.count);const suf=el.dataset.suf||'';
+    const dur=900,t0=performance.now();const ease=t=>1-Math.pow(1-t,3);
+    function frame(now){const p=Math.min(1,(now-t0)/dur);el.textContent=Math.round(target*ease(p))+suf;if(p<1)requestAnimationFrame(frame);}
+    requestAnimationFrame(frame);
+  });
+}
+function render(){
+  slides.forEach((s,i)=>s.classList.toggle('active',i===cur));
+  dots.forEach((d,i)=>d.classList.toggle('on',i===cur));
+  counter.textContent=(cur+1)+' / '+total;
+  progress.style.width=((cur+1)/total*100)+'%';
+  animateCounters(slides[cur]);
+}
+function go(i){cur=Math.max(0,Math.min(total-1,i));render();}
+function next(){if(cur<total-1){cur++;render();}}
+function prev(){if(cur>0){cur--;render();}}
+function toggleFS(){if(!document.fullscreenElement){document.documentElement.requestFullscreen?.();}else{document.exitFullscreen?.();}}
+
+/* QUIZ */
+const QUIZ=[
+  {q:"Wat is de belangrijkste reden dat ondernemers dit kopen?",o:["Om personeel te ontslaan","Om gemiste klanten en omzet terug te winnen","Omdat AI nieuw en hip is"],c:1,fb:"Het draait om omzetherstel — niet om bezuinigen. Verkoop omzet & rust, geen techniek."},
+  {q:"Een prospect zegt: “Klinkt het niet als een robot?” Wat doe je?",o:["Uitleggen hoe het AI-model werkt","Laat hem de AI zelf bellen in de demo","Korting aanbieden"],c:1,fb:"De demo verslaat elk argument. Laat ze het zélf ervaren."},
+  {q:"Welke branche koopt het snelst (impulsief)?",o:["Advocaten","Installateurs & tandartsen","Overheid"],c:1,fb:"Hoog belvolume + zichtbaar omzetverlies nu = snelle beslissing. Advocaten/accountants vragen meer nurturing."},
+  {q:"Hoe positioneer je de prijs het sterkst?",o:["Gewoon €349 noemen","Ankeren tegen een receptionist van €2.800+/mnd","Zeggen dat het goedkoop is"],c:1,fb:"Anker eerst de dure mens (€2.800+), dan voelt €349 als een koopje. Eén gered gesprek verdient het terug."}
+];
+let qi=0,qscore=0;
+function buildQuiz(){
+  const root=document.getElementById('quizbody');if(!root)return;
+  if(qi>=QUIZ.length){
+    root.innerHTML='<div class="qscore"><div class="big">'+qscore+'/'+QUIZ.length+'</div><p class="lead" style="margin-top:10px">'+(qscore>=3?'Sterk! Je begrijpt de kern. Klaar om te verkopen.':'Goede start — blader nog even terug door de modules.')+'</p><button class="cta" onclick="qi=0;qscore=0;buildQuiz()">Opnieuw proberen</button></div>';
+    return;
+  }
+  const item=QUIZ[qi];
+  let html='<div class="qprog">Vraag '+(qi+1)+' van '+QUIZ.length+'</div><div class="qq">'+item.q+'</div><div class="qopts">';
+  item.o.forEach((opt,i)=>{html+='<div class="qopt" onclick="answer('+i+')"><span class="ql">'+String.fromCharCode(65+i)+'</span><span>'+opt+'</span></div>';});
+  html+='</div><div class="qfb" id="qfb"></div><button class="cta qnext" id="qnext" onclick="qi++;buildQuiz()">Volgende <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+  root.innerHTML=html;
+}
+function answer(i){
+  const item=QUIZ[qi];const opts=document.querySelectorAll('#quizbody .qopt');
+  if(document.querySelector('#quizbody .qopt.correct'))return;
+  opts.forEach((o,idx)=>{o.style.pointerEvents='none';if(idx===item.c)o.classList.add('correct');if(idx===i&&i!==item.c)o.classList.add('wrong');});
+  if(i===item.c)qscore++;
+  const fb=document.getElementById('qfb');fb.innerHTML='<b>'+(i===item.c?'Juist! ':'Bijna. ')+'</b>'+item.fb;fb.classList.add('show');
+  document.getElementById('qnext').classList.add('show');
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();next();}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+  else if(e.key==='Home'){go(0);}else if(e.key==='End'){go(total-1);}
+  else if(e.key==='f'||e.key==='F'){toggleFS();}
+});
+let sx=0;
+addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50){dx<0?next():prev();}},{passive:true});
+setTimeout(()=>{document.getElementById('kbhint').style.opacity='0';},4500);
+if(document.getElementById('quizbody'))buildQuiz();
+render();
+</script>
+</body>
+</html>
