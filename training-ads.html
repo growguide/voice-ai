@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowGuide — Training Meta Ads & Leadgeneratie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b16;--bg2:#0a1020;--ink:#eef3ff;--muted:#8a96b5;--muted2:#5e6a88;
+  --blue:#4f7cff;--blue-l:#7aa0ff;--violet:#8b6cff;--green:#22c55e;--green-l:#4ade80;--amber:#f5b13d;
+  --panel:rgba(255,255,255,.035);--panel-b:rgba(255,255,255,.09);--panel-b2:rgba(255,255,255,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+   radial-gradient(900px 600px at 18% 12%,rgba(79,124,255,.16),transparent 60%),
+   radial-gradient(820px 560px at 86% 88%,rgba(139,108,255,.13),transparent 60%),
+   radial-gradient(700px 500px at 90% 8%,rgba(34,197,94,.07),transparent 60%),
+   linear-gradient(180deg,#070b16,#060912)}
+.grid-layer{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:60px 60px;-webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 40%,transparent 100%);mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 40%,transparent 100%)}
+.progress{position:fixed;top:0;left:0;height:3px;z-index:8;background:linear-gradient(90deg,var(--blue),var(--violet));width:0;transition:width .5s ease;box-shadow:0 0 12px rgba(79,124,255,.6)}
+
+.stage{position:relative;z-index:2;height:100vh;width:100vw}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:60px clamp(40px,7vw,130px) 100px;opacity:0;visibility:hidden;transform:scale(.985);
+  transition:opacity .5s ease,transform .5s ease,visibility .5s;overflow:hidden}
+.slide.active{opacity:1;visibility:visible;transform:scale(1)}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:22px clamp(28px,4vw,52px);pointer-events:none}
+.brand{display:flex;align-items:center;gap:11px;font-family:'Sora';font-weight:700;font-size:20px;letter-spacing:-.01em}
+.brand .logo{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--violet));box-shadow:0 6px 22px rgba(79,124,255,.4)}
+.brand .logo svg{width:17px;height:17px}
+.brand b{color:#fff}.brand span{color:var(--blue-l)}
+.tagtop{pointer-events:auto;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:#dfe7ff;background:linear-gradient(135deg,rgba(79,124,255,.9),rgba(110,92,255,.9));padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 26px rgba(79,124,255,.35)}
+.tagtop .dot{width:8px;height:8px;border-radius:50%;background:var(--green-l);box-shadow:0 0 8px var(--green-l)}
+
+.botbar{position:fixed;bottom:0;left:0;right:0;z-index:6;display:flex;align-items:center;justify-content:space-between;padding:20px clamp(28px,4vw,52px)}
+.foot{font-size:12.5px;color:var(--muted2);display:flex;align-items:center;gap:8px}
+.foot .gg{display:flex;align-items:center;gap:6px;opacity:.8}.foot b{color:var(--blue-l)}
+.nav{display:flex;align-items:center;gap:18px}
+.dots{display:flex;align-items:center;gap:7px}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);cursor:pointer;transition:.3s}
+.dots i.on{width:26px;border-radius:5px;background:linear-gradient(90deg,var(--blue),var(--blue-l))}
+.arrow{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--panel-b);color:#cdd6ef;transition:.2s}
+.arrow:hover{background:rgba(255,255,255,.12);color:#fff}.arrow svg{width:17px;height:17px}
+.counter{font-size:13px;color:var(--muted);min-width:48px;text-align:right;font-variant-numeric:tabular-nums}
+.fs{cursor:pointer;color:var(--muted2);transition:.2s}.fs:hover{color:#fff}.fs svg{width:18px;height:18px}
+
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--blue-l);margin-bottom:20px}
+.eyebrow.green{color:var(--green-l)}.eyebrow.amber{color:var(--amber)}.eyebrow.violet{color:#b3a0ff}
+.eyebrow svg{width:17px;height:17px}
+.eyebrow .mod{font-family:'Sora';background:rgba(79,124,255,.16);color:var(--blue-l);border-radius:6px;padding:2px 9px;letter-spacing:.02em}
+.eyebrow.green .mod{background:rgba(34,197,94,.16);color:var(--green-l)}
+.eyebrow.amber .mod{background:rgba(245,177,61,.16);color:var(--amber)}
+.eyebrow.violet .mod{background:rgba(139,108,255,.18);color:#b3a0ff}
+h1.display{font-family:'Sora';font-weight:800;font-size:clamp(40px,6.4vw,86px);line-height:1.03;letter-spacing:-.025em;color:#fff}
+h2.title{font-family:'Sora';font-weight:800;font-size:clamp(28px,4.2vw,54px);line-height:1.07;letter-spacing:-.02em;color:#fff}
+.grad{background:linear-gradient(100deg,var(--blue-l),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-g{background:linear-gradient(100deg,var(--green-l),#86efac);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-a{background:linear-gradient(100deg,#ffd083,var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:clamp(15px,1.45vw,20px);color:var(--muted);line-height:1.55;max-width:840px}
+.center{align-items:center;text-align:center}.center .lead{margin:0 auto}
+
+.slide .anim{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease}
+.slide.active .anim{opacity:1;transform:none;transition-delay:calc(var(--i,0)*45ms + 80ms)}
+
+.cards{display:flex;gap:18px;flex-wrap:wrap;margin-top:30px}
+.card{flex:1;min-width:200px;background:var(--panel);border:1px solid var(--panel-b);border-radius:18px;padding:22px 24px;position:relative;overflow:hidden}
+.card .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px;background:rgba(79,124,255,.14);color:var(--blue-l)}
+.card .ic svg{width:22px;height:22px}
+.card .big{font-family:'Sora';font-weight:800;font-size:clamp(20px,2.2vw,26px);line-height:1.05;letter-spacing:-.02em;color:#fff}
+.card .lbl{color:var(--muted);font-size:14px;margin-top:8px;line-height:1.5}
+.card.g .ic{background:rgba(34,197,94,.14);color:var(--green-l)}.card.a .ic{background:rgba(245,177,61,.14);color:var(--amber)}.card.v .ic{background:rgba(139,108,255,.16);color:#b3a0ff}
+.card::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent);opacity:.5}
+.card.g::after{background:linear-gradient(90deg,transparent,var(--green),transparent)}.card.a::after{background:linear-gradient(90deg,transparent,var(--amber),transparent)}.card.v::after{background:linear-gradient(90deg,transparent,var(--violet),transparent)}
+
+.pillrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.pill{font-size:13px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--panel-b);padding:8px 14px;border-radius:999px;display:flex;align-items:center;gap:8px}
+.pill svg{width:14px;height:14px;color:var(--green-l)}
+
+.kbadge{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;color:#c7d4ff;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.32);padding:9px 18px;border-radius:999px;margin-bottom:26px}
+.kbadge .d{width:7px;height:7px;border-radius:50%;background:var(--blue-l);box-shadow:0 0 8px var(--blue-l)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:38px;align-items:start;width:100%}
+@media(max-width:1000px){.two{grid-template-columns:1fr;gap:24px}}
+
+.agenda{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:30px;width:100%}
+@media(max-width:1000px){.agenda{grid-template-columns:repeat(2,1fr)}}
+.mcard{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:18px;transition:.2s}
+.mcard:hover{border-color:var(--panel-b2)}
+.mcard .n{font-family:'Sora';font-weight:800;font-size:18px;color:var(--blue-l);flex:none;width:34px;height:34px;border-radius:9px;background:rgba(79,124,255,.13);display:grid;place-items:center}
+.mcard.s .n{color:var(--green-l);background:rgba(34,197,94,.13)}
+.mcard b{font-size:15px;color:#fff;display:block;margin-bottom:2px}
+.mcard small{font-size:12.5px;color:var(--muted);line-height:1.45}
+
+/* capability grid */
+.capgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:26px;width:100%}
+@media(max-width:1100px){.capgrid{grid-template-columns:repeat(2,1fr)}}
+.cap{background:var(--panel);border:1px solid var(--panel-b);border-radius:15px;padding:18px;transition:.2s}
+.cap:hover{border-color:var(--panel-b2);transform:translateY(-2px)}
+.cap .ci{width:40px;height:40px;border-radius:11px;background:rgba(79,124,255,.13);color:var(--blue-l);display:grid;place-items:center;margin-bottom:12px}
+.cap .ci svg{width:20px;height:20px}
+.cap b{color:#fff;font-size:14.5px;display:block;margin-bottom:4px}
+.cap p{color:var(--muted);font-size:12.8px;line-height:1.5}
+
+/* steps */
+.steps{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.step{display:flex;gap:16px;align-items:flex-start;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:15px 18px}
+.step .sn{width:30px;height:30px;flex:none;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-weight:700;display:grid;place-items:center;font-size:14px}
+.step h4{font-size:15.5px;color:#fff;margin-bottom:3px}
+.step p{font-size:13.5px;color:var(--muted);line-height:1.5}
+
+/* checklist */
+.checks{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.chk{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:14px 18px}
+.chk .ci{width:28px;height:28px;flex:none;border-radius:8px;background:rgba(34,197,94,.15);color:var(--green-l);display:grid;place-items:center}
+.chk .ci svg{width:16px;height:16px}
+.chk b{color:#fff;font-size:14.5px}.chk span{color:var(--muted);font-size:13.5px}
+
+/* chat examples */
+.chatwrap{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:24px;width:100%}
+@media(max-width:1000px){.chatwrap{grid-template-columns:1fr}}
+.chatcol{background:var(--panel);border:1px solid var(--panel-b);border-radius:18px;padding:18px;display:flex;flex-direction:column}
+.chatcol .ch{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.chatcol .ch .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;flex:none}
+.chatcol.voice .av{background:linear-gradient(135deg,var(--blue),var(--violet))}
+.chatcol.wa .av{background:linear-gradient(135deg,#16a34a,var(--green))}
+.chatcol .ch .av svg{width:19px;height:19px}
+.chatcol .ch b{font-size:14.5px;color:#fff;display:block}
+.chatcol .ch small{font-size:12px;color:var(--green-l)}
+.chat{display:flex;flex-direction:column;gap:8px}
+.bub{max-width:88%;font-size:12.8px;line-height:1.4;padding:8px 12px;border-radius:13px}
+.bub.ai{align-self:flex-start;border-bottom-left-radius:4px}
+.bub.u{align-self:flex-end;border-bottom-right-radius:4px}
+.chatcol.voice .bub.ai{background:rgba(79,124,255,.16);border:1px solid rgba(79,124,255,.3);color:#dfe8ff}
+.chatcol.voice .bub.u{background:rgba(255,255,255,.07);border:1px solid var(--panel-b);color:#e8edfb}
+.chatcol.wa .bub.ai{background:#1f2c33;color:#e9eef0}
+.chatcol.wa .bub.u{background:#155e44;color:#eafff2}
+.note{font-size:12.5px;color:var(--muted);margin-top:13px;border-top:1px solid var(--panel-b);padding-top:11px}
+.note b{color:#dbe3f7}
+
+/* objection / table */
+.cmp{width:100%;margin-top:18px;border:1px solid var(--panel-b);border-radius:18px;overflow:hidden;background:var(--panel)}
+.crow{display:grid;grid-template-columns:1fr 1.5fr;align-items:flex-start}
+.crow+.crow{border-top:1px solid rgba(255,255,255,.055)}
+.crow.head{background:rgba(255,255,255,.03)}
+.crow.head .cc{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.crow.head .cc.gg{color:var(--green-l)}
+.cc{padding:13px 20px;font-size:13.8px;line-height:1.5}
+.cc.lbl{font-weight:700;color:#fb7185}
+.cc.ans{color:#dbe3f7}.cc.ans b{color:var(--green-l)}
+
+/* quiz */
+.quiz{width:100%;max-width:820px;margin:22px auto 0}
+.qq{font-family:'Sora';font-weight:700;font-size:clamp(19px,2.2vw,26px);color:#fff;margin-bottom:8px}
+.qprog{font-size:13px;color:var(--muted);margin-bottom:18px}
+.qopts{display:flex;flex-direction:column;gap:11px}
+.qopt{display:flex;gap:13px;align-items:center;background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:15px 18px;cursor:pointer;transition:.18s;font-size:15px;color:#e7ecfb;text-align:left}
+.qopt:hover{border-color:var(--panel-b2);background:rgba(255,255,255,.05)}
+.qopt .ql{width:28px;height:28px;flex:none;border-radius:8px;background:rgba(255,255,255,.07);display:grid;place-items:center;font-weight:700;color:#9fb0d6;font-size:13px}
+.qopt.correct{border-color:var(--green-l);background:rgba(34,197,94,.12)}
+.qopt.correct .ql{background:var(--green-l);color:#06210f}
+.qopt.wrong{border-color:#fb7185;background:rgba(244,63,94,.1)}
+.qopt.wrong .ql{background:#fb7185;color:#3a0a12}
+.qfb{margin-top:15px;font-size:14px;color:#dbe3f7;background:var(--panel);border:1px solid var(--panel-b);border-radius:12px;padding:13px 18px;display:none}
+.qfb.show{display:block}.qfb b{color:var(--green-l)}
+.qnext{margin-top:16px;display:none}.qnext.show{display:inline-flex}
+.qscore{text-align:center}
+.qscore .big{font-family:'Sora';font-weight:800;font-size:clamp(44px,6vw,72px);color:var(--green-l)}
+
+.cta{display:inline-flex;align-items:center;gap:11px;font-weight:700;font-size:16px;color:#fff;background:linear-gradient(135deg,var(--blue),var(--violet));padding:16px 30px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 14px 38px rgba(79,124,255,.4);transition:.22s;margin-top:30px;text-decoration:none}
+.cta:hover{transform:translateY(-2px);box-shadow:0 20px 48px rgba(79,124,255,.5)}
+.cta svg{width:18px;height:18px}
+
+.bigicon{width:90px;height:90px;border-radius:26px;display:grid;place-items:center;margin:0 auto 26px;background:linear-gradient(135deg,rgba(79,124,255,.2),rgba(139,108,255,.16));border:1px solid rgba(79,124,255,.3)}
+.bigicon svg{width:42px;height:42px;color:var(--blue-l)}
+.rule{width:60px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--violet));margin:22px auto}
+
+.recap{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:26px;width:100%}
+@media(max-width:1000px){.recap{grid-template-columns:1fr}}
+.rc{background:var(--panel);border:1px solid var(--panel-b);border-radius:14px;padding:18px 20px}
+.rc h4{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:10px}
+.rc li{list-style:none;font-size:13.5px;color:#dbe3f7;line-height:1.5;margin-bottom:7px;padding-left:16px;position:relative}
+.rc li::before{content:"▸";position:absolute;left:0;color:var(--blue-l)}
+
+.kbhint{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);z-index:5;font-size:12px;color:var(--muted2);opacity:.75;transition:opacity .5s;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="grid-layer"></div>
+<div class="progress" id="progress"></div>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7l-9-5z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 12l2.5 2.5L16 9" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span><b>Grow</b><span>Guide</span></span>
+  </div>
+  <div class="tagtop"><span class="dot"></span> Producttraining</div>
+</div>
+
+<div class="stage" id="stage">
+<!-- 1 WELCOME -->
+  <section class="slide center">
+    <div class="anim" style="--i:0"><span class="kbadge"><span class="d"></span> Onboarding · nieuwe medewerkers</span></div>
+    <h1 class="display anim" style="--i:1">Leer het product:<br><span class="grad">Meta Ads &amp; Leadgeneratie</span></h1>
+    <p class="lead anim" style="--i:2;margin-top:22px">Eerst snap je hóe het werkt en wát er allemaal in zit — adverteren op Google, Meta, LinkedIn &amp; TikTok mét directe AI-opvolging via WhatsApp en Voice. Daarna leer je het verkopen. Reken op ~15 minuten + een kennischeck.</p>
+    <div class="cards anim" style="--i:3;max-width:880px;margin-left:auto;margin-right:auto">
+      <div class="card b"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11l18-7-7 18-2.5-7.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div><div class="big">Hoe het werkt</div><div class="lbl">van advertentie tot klant</div></div>
+      <div class="card g"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="big">Wat er in zit</div><div class="lbl">platforms, AI &amp; rapportage</div></div>
+      <div class="card v"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div class="big">Hoe je het verkoopt</div><div class="lbl">pitch &amp; bezwaren</div></div>
+    </div>
+    <button class="cta anim" style="--i:4" onclick="go(1)">Start de training <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </section>
+
+  <!-- 2 AGENDA -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Wat je gaat leren</span></div>
+    <h2 class="title anim" style="--i:1">Eerst het <span class="grad">product</span>, dan de <span class="grad-g">verkoop</span></h2>
+    <div class="agenda">
+      <div class="mcard anim" style="--i:2"><div class="n">1</div><div><b>Wat is het?</b><small>Ads + AI-opvolging in het kort</small></div></div>
+      <div class="mcard anim" style="--i:3"><div class="n">2</div><div><b>Hoe het werkt</b><small>Van klik tot klant: speed-to-lead</small></div></div>
+      <div class="mcard anim" style="--i:4"><div class="n">3</div><div><b>De platforms</b><small>Google, Meta, LinkedIn, TikTok</small></div></div>
+      <div class="mcard anim" style="--i:5"><div class="n">4</div><div><b>Wat is inbegrepen</b><small>Beheer, AI-opvolging &amp; rapportage</small></div></div>
+      <div class="mcard anim" style="--i:6"><div class="n">5</div><div><b>Het proces &amp; resultaten</b><small>Setup tot groei + de cijfers</small></div></div>
+      <div class="mcard s anim" style="--i:7"><div class="n">6</div><div><b>De klant &amp; verkopen</b><small>Pijn, pitch, prijs &amp; bezwaren</small></div></div>
+      <div class="mcard s anim" style="--i:8"><div class="n">✓</div><div><b>Kennischeck</b><small>Test wat je hebt geleerd</small></div></div>
+      <div class="mcard s anim" style="--i:9"><div class="n">★</div><div><b>Spiekbriefje</b><small>Alles op één scherm</small></div></div>
+    </div>
+  </section>
+
+  <!-- 3 M1 — WAT IS HET -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 1</span> Wat is het?</span></div>
+    <h2 class="title anim" style="--i:1">Advertenties <span class="grad">+ directe AI-opvolging</span></h2>
+    <p class="lead anim" style="--i:2">De meeste bureaus leveren alleen advertenties. Wij koppelen er meteen AI-opvolging aan vast — dát is het verschil: geen lead blijft liggen.</p>
+    <div class="cards anim" style="--i:3;margin-top:30px">
+      <div class="card b" style="padding:26px"><div class="ic" style="width:48px;height:48px"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11l18-7-7 18-2.5-7.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div><div class="big" style="font-size:22px">De advertenties</div><div class="lbl">Professionele campagnes op Google, Facebook, Instagram, LinkedIn &amp; TikTok die de juiste mensen in de juiste regio bereiken.</div></div>
+      <div class="card g" style="padding:26px"><div class="ic" style="width:48px;height:48px"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.6-1.2A9 9 0 1 0 12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div class="big" style="font-size:22px">De AI-opvolging</div><div class="lbl">Elke lead wordt binnen seconden opgevolgd via WhatsApp AI of Voice AI — kwalificeren, afspraak plannen, no-shows voorkomen.</div></div>
+    </div>
+    <div class="pillrow anim" style="--i:4">
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Meer leads</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Betere kwaliteit prospects</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Transparante rapportage</span>
+    </div>
+  </section>
+
+  <!-- 4 M2 — HOE HET WERKT -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 2</span> Hoe het werkt</span></div>
+    <h2 class="title anim" style="--i:1">Van klik tot klant — <span class="grad">snelheid wint</span></h2>
+    <p class="lead anim" style="--i:2">Belangrijk om te snappen: leads zijn alleen waardevol als ze snel worden opgevolgd. Ons systeem doet dat automatisch, 24/7.</p>
+    <div class="steps" style="margin-top:24px">
+      <div class="step anim" style="--i:3"><span class="sn">1</span><div><h4>Advertentie wordt getoond</h4><p>Aan de juiste doelgroep op basis van demografie, interesses en gedrag in de regio.</p></div></div>
+      <div class="step anim" style="--i:4"><span class="sn">2</span><div><h4>Bezoeker laat gegevens achter</h4><p>Via een geoptimaliseerde landingspagina of leadformulier — naam, telefoon, vraag.</p></div></div>
+      <div class="step anim" style="--i:5"><span class="sn">3</span><div><h4>AI volgt binnen seconden op</h4><p>WhatsApp AI of Voice AI reageert direct, kwalificeert en stuurt eventueel video/content.</p></div></div>
+      <div class="step anim" style="--i:6"><span class="sn">4</span><div><h4>Afspraak ingepland</h4><p>De lead wordt een afspraak; herinneringen voorkomen no-shows. Alles meetbaar.</p></div></div>
+    </div>
+    <div class="pillrow anim" style="--i:7"><span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Onthoud: de meeste bureaus stoppen na stap 2 — wij gaan door tot de afspraak.</span></div>
+  </section>
+
+  <!-- 5 M3 — PLATFORMS -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 3</span> De platforms</span></div>
+    <h2 class="title anim" style="--i:1">Het juiste kanaal voor <span class="grad">de juiste doelgroep</span></h2>
+    <div class="capgrid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="cap anim" style="--i:2"><b>Google Ads</b><p>Mensen die actief zoeken — hoge koopintentie. Zoek- en display-campagnes.</p></div>
+      <div class="cap anim" style="--i:3"><b>Facebook &amp; Instagram</b><p>Brede regionale doelgroepen, sterk visueel. Retargeting &amp; lookalikes.</p></div>
+      <div class="cap anim" style="--i:4"><b>LinkedIn Ads</b><p>B2B en professionele diensten — targeting op functie &amp; bedrijf.</p></div>
+      <div class="cap anim" style="--i:5"><b>TikTok</b><p>Jongere doelgroepen, korte video, snelle bekendheid.</p></div>
+      <div class="cap anim" style="--i:6"><b>Bing / Microsoft</b><p>Extra zoekverkeer, vaak lagere kosten per klik.</p></div>
+      <div class="cap anim" style="--i:7"><b>Keuze op strategie</b><p>We kiezen het platform op basis van doelgroep en doel — niet andersom.</p></div>
+    </div>
+    <div class="pillrow anim" style="--i:8"><span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Belangrijk: het ad-budget loopt via de eigen accounts van de klant — die houdt eigenaarschap.</span></div>
+  </section>
+
+  <!-- 6 M4 — WAT IS INBEGREPEN -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 4</span> Wat is inbegrepen</span></div>
+    <h2 class="title anim" style="--i:1">Wat de klant er <span class="grad">allemaal voor krijgt</span></h2>
+    <div class="capgrid">
+      <div class="cap anim" style="--i:2"><div class="ci"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/></svg></div><b>Targeting &amp; opzet</b><p>Doelgroep, regio, retargeting en lookalike audiences.</p></div>
+      <div class="cap anim" style="--i:3"><div class="ci"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.6-1.2A9 9 0 1 0 12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div><b>AI-lead opvolging</b><p>WhatsApp &amp; Voice AI, lead scoring en prioritering.</p></div>
+      <div class="cap anim" style="--i:4"><div class="ci"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H7l-3 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><b>Video &amp; content</b><p>Automatisch portfolio/video versturen om vertrouwen op te bouwen.</p></div>
+      <div class="cap anim" style="--i:5"><div class="ci"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="1.7"/></svg></div><b>No-show reductie</b><p>Automatische herinneringen en follow-ups.</p></div>
+      <div class="cap anim" style="--i:6"><div class="ci"><svg viewBox="0 0 24 24" fill="none"><path d="M3 17l6-6 4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><b>A/B-testen</b><p>Teksten en visuals testen voor de beste resultaten.</p></div>
+      <div class="cap anim" style="--i:7"><div class="ci"><svg viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><b>Budget-optimalisatie</b><p>24/7 monitoring voor de beste kosten per lead.</p></div>
+      <div class="cap anim" style="--i:8"><div class="ci"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div><b>Rapportage &amp; dashboard</b><p>Real-time inzicht: cost-per-lead, ROAS, conversies.</p></div>
+      <div class="cap anim" style="--i:9"><div class="ci"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-7-10a7 7 0 0 1 14 0c0 5.5-7 10-7 10z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="11" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg></div><b>Regionale targeting</b><p>Geo-fencing: alleen tonen waar het ertoe doet.</p></div>
+    </div>
+  </section>
+
+  <!-- 7 M5 — PROCES + RESULTATEN -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow"><span class="mod">Module 5</span> Het proces &amp; resultaten</span></div>
+    <h2 class="title anim" style="--i:1">Van strategie tot <span class="grad">groei</span></h2>
+    <div class="two" style="margin-top:24px">
+      <div class="anim" style="--i:2">
+        <h4 style="color:var(--blue-l);font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Het proces</h4>
+        <div class="steps" style="margin-top:0">
+          <div class="step"><span class="sn">1</span><div><h4>Strategie &amp; setup</h4><p>Bedrijfs- &amp; doelgroepanalyse, campagnes live.</p></div></div>
+          <div class="step"><span class="sn">2</span><div><h4>AI-integratie</h4><p>WhatsApp &amp; Voice AI getraind op het bedrijf.</p></div></div>
+          <div class="step"><span class="sn">3</span><div><h4>Launch</h4><p>Advertenties live, AI start met opvolgen.</p></div></div>
+          <div class="step"><span class="sn">4</span><div><h4>Optimalisatie &amp; groei</h4><p>Doorlopend bijsturen op data.</p></div></div>
+        </div>
+      </div>
+      <div class="anim" style="--i:3">
+        <h4 style="color:var(--green-l);font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">De cijfers</h4>
+        <div class="capgrid" style="grid-template-columns:1fr 1fr;margin-top:0">
+          <div class="cap"><b style="font-size:22px;color:var(--green-l)">40–60%</b><p>lagere kosten per lead*</p></div>
+          <div class="cap"><b style="font-size:22px;color:var(--blue-l)">4,2</b><p>gemiddelde ROAS</p></div>
+          <div class="cap"><b style="font-size:22px;color:#fff">100+</b><p>campagnes onder beheer</p></div>
+          <div class="cap"><b style="font-size:22px;color:#fff">€100k+</b><p>ad-budget per maand</p></div>
+        </div>
+        <p style="font-size:11.5px;color:var(--muted2);margin-top:10px">*o.b.v. klant-rapportages 2025, resultaten variëren</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 M6 — KLANT & WAAROM KOPEN -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow green"><span class="mod">Module 6</span> De klant &amp; verkopen</span></div>
+    <h2 class="title anim" style="--i:1">Waarom klanten dit <span class="grad-g">kopen</span></h2>
+    <p class="lead anim" style="--i:2">Nu je het product kent: dit is de pijn die je oplost en waarom mensen ja zeggen.</p>
+    <div class="two" style="margin-top:24px">
+      <div class="steps">
+        <div class="step anim" style="--i:3"><span class="sn">!</span><div><h4>De pijn</h4><p>Te weinig leads, dure of slechte leads, en leads die blijven liggen omdat niemand snel opvolgt.</p></div></div>
+        <div class="step anim" style="--i:4"><span class="sn">€</span><div><h4>De winst</h4><p>Meer en betere leads, lagere kosten per lead én elke lead wordt direct opgevolgd — niets gaat verloren.</p></div></div>
+      </div>
+      <div class="checks anim" style="--i:5">
+        <div class="chk"><span class="ci"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Uniek</b> <span>— wij combineren ads mét AI-opvolging; de meeste bureaus niet.</span></div></div>
+        <div class="chk"><span class="ci"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Snelheid</b> <span>— wie het eerst reageert, wint de klant.</span></div></div>
+        <div class="chk"><span class="ci"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Transparant</b> <span>— ze zien per kanaal precies wat het oplevert.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 M6 — PITCH & PRIJS -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow green"><span class="mod">Module 6</span> Pitch &amp; prijs</span></div>
+    <h2 class="title anim" style="--i:1">Zo breng je het: <span class="grad-g">P-A-S</span></h2>
+    <div class="two" style="margin-top:24px">
+      <div class="steps">
+        <div class="step anim" style="--i:2"><span class="sn">P</span><div><h4>Probleem</h4><p>“Hoeveel leads krijgt u nu per maand — en hoe snel volgt u ze op?”</p></div></div>
+        <div class="step anim" style="--i:3"><span class="sn">A</span><div><h4>Agiteer</h4><p>“Leads die niet binnen minuten worden opgevolgd, gaan naar de concurrent.”</p></div></div>
+        <div class="step anim" style="--i:4"><span class="sn">S</span><div><h4>Oplossing</h4><p>“Wij brengen de leads bínnen én volgen ze direct op met AI. Meer afspraken, lagere kosten.”</p></div></div>
+      </div>
+      <div class="anim" style="--i:5">
+        <div class="card a"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="big" style="font-size:18px">Over de prijs</div><div class="lbl">Het <b style="color:#fff">ad-budget loopt via hun eigen account</b> (ze houden controle). Daarbovenop ons beheer + AI-opvolging — in een pakket vanaf €497/mnd, maandelijks opzegbaar.</div></div>
+        <div class="pillrow"><span class="pill">Demo: laat de AI-opvolging zien</span><span class="pill">Transparant per kanaal</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 M6 — BEZWAREN -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow green"><span class="mod">Module 6</span> Bezwaren wegnemen</span></div>
+    <h2 class="title anim" style="--i:1">De meest gehoorde <span class="grad-g">bezwaren</span></h2>
+    <div class="cmp anim" style="--i:2">
+      <div class="crow head"><div class="cc">Bezwaar</div><div class="cc gg">● Jouw reactie</div></div>
+      <div class="crow"><div class="cc lbl">“Adverteren heeft bij mij niet gewerkt”</div><div class="cc ans">Meestal lag het aan <b>trage opvolging</b>. Onze AI volgt élke lead binnen seconden op — dat is het verschil.</div></div>
+      <div class="crow"><div class="cc lbl">“Te duur / risicovol”</div><div class="cc ans">Het <b>budget loopt via uw eigen account</b>; u houdt controle. We optimaliseren op laagste kosten per lead.</div></div>
+      <div class="crow"><div class="cc lbl">“Ik krijg leads van slechte kwaliteit”</div><div class="cc ans"><b>AI kwalificeert</b> elke lead en scoort ze, zodat u alleen serieuze prospects spreekt.</div></div>
+      <div class="crow"><div class="cc lbl">“Ik zie niet wat het oplevert”</div><div class="cc ans"><b>Real-time dashboard</b>: cost-per-lead, ROAS en conversies per kanaal.</div></div>
+      <div class="crow"><div class="cc lbl">“Welk platform moet ik kiezen?”</div><div class="cc ans">Dat bepalen <b>wij</b> op basis van uw doelgroep en doel — geen giswerk.</div></div>
+    </div>
+  </section>
+
+  <!-- 11 QUIZ -->
+  <section class="slide center">
+    <div class="anim" style="--i:0"><span class="eyebrow green"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M9.5 9a2.5 2.5 0 0 1 4.5 1.5c0 1.5-2 2-2 3M12 17h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Kennischeck</span></div>
+    <h2 class="title anim" style="--i:1">Test wat je hebt <span class="grad-g">geleerd</span></h2>
+    <div class="quiz anim" style="--i:2" id="quizbody"></div>
+  </section>
+
+  <!-- 12 SPIEKBRIEFJE -->
+  <section class="slide">
+    <div class="anim" style="--i:0"><span class="eyebrow amber"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3h6a2 2 0 0 1 2 2H7a2 2 0 0 1 2-2zM7 5h10v16H7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Spiekbriefje</span></div>
+    <h2 class="title anim" style="--i:1">Alles op <span class="grad-a">één scherm</span></h2>
+    <div class="recap">
+      <div class="rc anim" style="--i:2"><h4>Wat het is</h4><li>Ads + directe AI-opvolging</li><li>Google, Meta, LinkedIn, TikTok, Bing</li><li>WhatsApp AI &amp; Voice AI volgen op</li></div>
+      <div class="rc anim" style="--i:3"><h4>Hoe het werkt</h4><li>Klik → lead → AI binnen seconden → afspraak</li><li>Snelheid wint: wie eerst reageert, wint</li><li>Budget via eigen account van de klant</li></div>
+      <div class="rc anim" style="--i:4"><h4>De cijfers</h4><li>40–60% lagere kosten per lead</li><li>4,2 gemiddelde ROAS</li><li>100+ campagnes · €100k+/mnd beheerd</li></div>
+      <div class="rc anim" style="--i:5"><h4>Verkopen</h4><li>USP: ads mét AI-opvolging</li><li>P-A-S: begin bij “hoe snel volgt u op?”</li><li>Transparante rapportage als bewijs</li></div>
+    </div>
+  </section>
+
+  <!-- 13 AFSLUITING -->
+  <section class="slide center">
+    <div class="anim" style="--i:0"><div class="bigicon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+    <h1 class="display anim" style="--i:1;font-size:clamp(36px,5.4vw,72px)">Je kent het <span class="grad">product</span></h1>
+    <p class="lead anim" style="--i:2">Je weet hoe leadgeneratie werkt, wat erin zit en hoe je het verkoopt. Onthoud: ons verschil is de AI-opvolging — verkoop snelheid.</p>
+    <div class="rule anim" style="--i:3"></div>
+    <a class="cta anim" style="--i:4" href="https://growguide.ai/online-ads" target="_blank">Bekijk de dienstpagina <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <div class="pillrow anim" style="--i:5" style="justify-content:center;margin-top:22px"><span class="pill">Vragen? Bel je teamlead</span><span class="pill">info@growguide.ai</span></div>
+  </section>
+</div>
+
+<div class="kbhint" id="kbhint">Gebruik ← → of spatie om te navigeren</div>
+
+<div class="botbar">
+  <div class="foot"><span class="gg"><b>GrowGuide</b></span> · <span>Producttraining · Meta Ads &amp; Leadgeneratie</span></div>
+  <div class="nav">
+    <div class="arrow" onclick="prev()"><svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="dots" id="dots"></div>
+    <div class="arrow" onclick="next()"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="counter" id="counter">1 / 1</div>
+    <div class="fs" onclick="toggleFS()"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const total=slides.length;
+let cur=0;
+const dotsEl=document.getElementById('dots');
+const counter=document.getElementById('counter');
+const progress=document.getElementById('progress');
+slides.forEach((_,i)=>{const d=document.createElement('i');if(i===0)d.className='on';d.onclick=()=>go(i);dotsEl.appendChild(d);});
+const dots=[...dotsEl.children];
+function render(){
+  slides.forEach((s,i)=>s.classList.toggle('active',i===cur));
+  dots.forEach((d,i)=>d.classList.toggle('on',i===cur));
+  counter.textContent=(cur+1)+' / '+total;
+  progress.style.width=((cur+1)/total*100)+'%';
+}
+function go(i){cur=Math.max(0,Math.min(total-1,i));render();}
+function next(){if(cur<total-1){cur++;render();}}
+function prev(){if(cur>0){cur--;render();}}
+function toggleFS(){if(!document.fullscreenElement){document.documentElement.requestFullscreen?.();}else{document.exitFullscreen?.();}}
+
+const QUIZ=[
+  {q:"Wat maakt onze leadgeneratie uniek t.o.v. andere bureaus?",o:["We adverteren goedkoper","We koppelen directe AI-opvolging (WhatsApp/Voice) aan de ads","We werken alleen met Google"],c:1,fb:"De meeste bureaus leveren alleen ads. Wij volgen élke lead binnen seconden op met AI — dat is het verschil."},
+  {q:"Via wiens account loopt het advertentiebudget?",o:["Via het account van GrowGuide","Via het eigen account van de klant","Dat maakt niet uit"],c:1,fb:"Het budget loopt via de eigen accounts van de klant — die houdt controle en eigenaarschap."},
+  {q:"Waarom is snelheid van opvolgen zo belangrijk?",o:["Het is niet belangrijk","Wie het eerst reageert, wint meestal de klant","Alleen voor B2B"],c:1,fb:"Leads die niet binnen minuten worden opgevolgd, gaan naar de concurrent. Onze AI doet dit automatisch, 24/7."},
+  {q:"Op welke platforms kunnen we adverteren?",o:["Alleen Facebook","Google, Meta, LinkedIn, TikTok en Bing","Alleen LinkedIn"],c:1,fb:"We kiezen het platform op basis van de doelgroep en het doel — niet andersom."},
+  {q:"Hoe toon je een twijfelende klant dat het werkt?",o:["Beloven dat het goedkoop is","Het real-time dashboard met cost-per-lead en ROAS","Niets, gewoon vertrouwen vragen"],c:1,fb:"Transparante rapportage per kanaal is je sterkste bewijs."}
+];
+let qi=0,qscore=0;
+function buildQuiz(){
+  const root=document.getElementById('quizbody');if(!root)return;
+  if(qi>=QUIZ.length){
+    root.innerHTML='<div class="qscore"><div class="big">'+qscore+'/'+QUIZ.length+'</div><p class="lead" style="margin-top:10px">'+(qscore>=4?'Sterk! Je kent het product én weet het te verkopen.':'Goede start — blader nog even terug door de modules.')+'</p><button class="cta" onclick="qi=0;qscore=0;buildQuiz()">Opnieuw proberen</button></div>';
+    return;
+  }
+  const item=QUIZ[qi];
+  let html='<div class="qprog">Vraag '+(qi+1)+' van '+QUIZ.length+'</div><div class="qq">'+item.q+'</div><div class="qopts">';
+  item.o.forEach((opt,i)=>{html+='<div class="qopt" onclick="answer('+i+')"><span class="ql">'+String.fromCharCode(65+i)+'</span><span>'+opt+'</span></div>';});
+  html+='</div><div class="qfb" id="qfb"></div><button class="cta qnext" id="qnext" onclick="qi++;buildQuiz()">Volgende <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+  root.innerHTML=html;
+}
+function answer(i){
+  const item=QUIZ[qi];const opts=document.querySelectorAll('#quizbody .qopt');
+  if(document.querySelector('#quizbody .qopt.correct'))return;
+  opts.forEach((o,idx)=>{o.style.pointerEvents='none';if(idx===item.c)o.classList.add('correct');if(idx===i&&i!==item.c)o.classList.add('wrong');});
+  if(i===item.c)qscore++;
+  const fb=document.getElementById('qfb');fb.innerHTML='<b>'+(i===item.c?'Juist! ':'Bijna. ')+'</b>'+item.fb;fb.classList.add('show');
+  document.getElementById('qnext').classList.add('show');
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();next();}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+  else if(e.key==='Home'){go(0);}else if(e.key==='End'){go(total-1);}
+  else if(e.key==='f'||e.key==='F'){toggleFS();}
+});
+let sx=0;
+addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50){dx<0?next():prev();}},{passive:true});
+setTimeout(()=>{document.getElementById('kbhint').style.opacity='0';},4500);
+buildQuiz();
+render();
+</script>
+</body>
+</html>
